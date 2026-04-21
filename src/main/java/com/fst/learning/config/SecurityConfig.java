@@ -18,10 +18,18 @@ public class SecurityConfig {
                 .requestMatchers("/api/**").permitAll()  // Permettre l'accès aux API REST
                 .requestMatchers("/formateur/**").hasRole("FORMATEUR")
                 .requestMatchers("/apprenant/**").hasRole("APPRENANT")
-                .requestMatchers("/", "/css/**", "/images/**").permitAll()
+                .requestMatchers(
+                        "/",
+                        "/login",
+                        "/error",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/webjars/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
-            .csrf(csrf -> csrf.disable())  // Désactiver CSRF pour les API
+            .csrf(csrf -> csrf.disable())  // (simple) désactivé; à durcir en prod
             .formLogin(form -> form
                 .loginPage("/login") // optionnel (si tu crées une page login)
                 .defaultSuccessUrl("/", true)
