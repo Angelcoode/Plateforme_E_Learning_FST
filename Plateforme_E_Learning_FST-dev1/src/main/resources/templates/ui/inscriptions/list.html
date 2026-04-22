@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Inscriptions')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+<main class="container my-5 flex-grow-1">
+  <div class="page-header d-flex justify-content-between align-items-center">
+    <h1 class="page-title"><i class="bi bi-person-check text-primary me-2"></i>Inscriptions</h1>
+    <a class="btn btn-primary" th:href="@{/ui/inscriptions/new}"><i class="bi bi-plus-lg me-1"></i>Nouvelle inscription</a>
+  </div>
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr>
+          <th>ID</th><th>Apprenant</th><th>Cours</th><th>Date</th><th>Statut</th><th class="text-end">Actions</th>
+        </tr></thead>
+        <tbody>
+          <tr th:each="i : ${inscriptions}">
+            <td class="text-muted small" th:text="${i.id}">1</td>
+            <td>
+              <div class="fw-medium" th:text="${i.apprenant != null ? i.apprenant.nom : '—'}">Nom</div>
+              <div class="text-muted small" th:text="${i.apprenant != null ? i.apprenant.email : ''}">email</div>
+            </td>
+            <td class="fw-medium small" th:text="${i.cours != null ? i.cours.titre : '—'}">Cours</td>
+            <td class="text-muted small" th:text="${i.dateInscription}">2026-01-01</td>
+            <td>
+              <span class="badge"
+                    th:classappend="${i.statut != null and i.statut.name() == 'ACCEPTEE'} ? 'text-bg-success' :
+                                   (${i.statut != null and i.statut.name() == 'EN_ATTENTE'} ? 'text-bg-warning' :
+                                   (${i.statut != null and i.statut.name() == 'TERMINEE'} ? 'text-bg-info' : 'text-bg-secondary'))"
+                    th:text="${i.statut}">STATUT</span>
+            </td>
+            <td class="text-end">
+              <a class="btn btn-outline-primary btn-sm me-1" th:href="@{/ui/inscriptions/{id}/edit(id=${i.id})}"><i class="bi bi-pencil"></i></a>
+              <form th:action="@{/ui/inscriptions/{id}/delete(id=${i.id})}" method="post" class="d-inline"
+                    onsubmit="return confirm('Supprimer cette inscription ?');">
+                <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(inscriptions)}">
+            <td colspan="6" class="text-center text-muted py-5">Aucune inscription.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

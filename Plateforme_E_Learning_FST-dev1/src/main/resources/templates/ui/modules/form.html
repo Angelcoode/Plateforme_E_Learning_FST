@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head(${module.id != null ? 'Modifier module' : 'Nouveau module'})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+<main class="container my-5 flex-grow-1" style="max-width:640px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="@{/ui/modules}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <h1 class="page-title" th:text="${module.id != null ? 'Modifier le module' : 'Nouveau module'}">Module</h1>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <form th:object="${module}"
+            th:action="${module.id != null ? '/ui/modules/' + module.id : '/ui/modules'}"
+            method="post" class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Titre <span class="text-danger">*</span></label>
+          <input class="form-control" th:field="*{titre}" required placeholder="Titre du module"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Ordre</label>
+          <input class="form-control" type="number" th:field="*{ordre}" min="1" placeholder="1"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Cours <span class="text-danger">*</span></label>
+          <select class="form-select" name="coursId" required>
+            <option value="">— Choisir —</option>
+            <option th:each="c : ${cours}" th:value="${c.id}"
+                    th:selected="${module.cours != null and module.cours.id == c.id}"
+                    th:text="${c.titre}">Cours</option>
+          </select>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button class="btn btn-primary px-4" type="submit"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+          <a th:href="@{/ui/modules}" class="btn btn-outline-secondary px-4">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

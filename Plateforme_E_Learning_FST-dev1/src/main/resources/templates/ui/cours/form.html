@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/fragments :: head(${cours.id != null ? 'Modifier cours' : 'Nouveau cours'})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1" style="max-width:760px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="@{/ui/cours}" class="btn btn-sm btn-outline-secondary btn-icon">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h1 class="page-title" th:text="${cours.id != null ? 'Modifier le cours' : 'Nouveau cours'}">Cours</h1>
+      <p class="text-muted small mb-0" th:text="${cours.id != null ? 'Mettez à jour les informations du cours' : 'Remplissez les informations pour créer un cours'}">Desc</p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <form th:object="${cours}"
+            th:action="${cours.id != null ? '/ui/cours/' + cours.id : '/ui/cours'}"
+            method="post" class="row g-4" enctype="multipart/form-data">
+
+        <div class="col-12">
+          <label class="form-label" for="titre">Titre <span class="text-danger">*</span></label>
+          <input class="form-control" id="titre" th:field="*{titre}" placeholder="Ex: Introduction à Spring Boot" required/>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label" for="description">Description</label>
+          <textarea class="form-control" id="description" th:field="*{description}" rows="4"
+                    placeholder="Décrivez le contenu et les objectifs de ce cours..."></textarea>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="categorie">Catégorie</label>
+          <input class="form-control" id="categorie" th:field="*{categorie}" placeholder="Ex: Développement Web"/>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="niveau">Niveau</label>
+          <select class="form-select" id="niveau" th:field="*{niveau}">
+            <option value="" disabled th:selected="${cours.niveau == null}">Choisir…</option>
+            <option th:each="n : ${niveaux}" th:value="${n}" th:text="${n}">NIVEAU</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="formateurId">Formateur</label>
+          <select class="form-select" id="formateurId" name="formateurId">
+            <option value="">— Aucun —</option>
+            <option th:each="u : ${formateurs}"
+                    th:value="${u.id}"
+                    th:selected="${cours.formateur != null and cours.formateur.id == u.id}"
+                    th:text="${u.nom + ' (' + u.email + ')'}">Formateur</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-8">
+          <label class="form-label" for="image">Image du cours</label>
+          <input class="form-control" id="image" name="image" type="file" accept="image/*"/>
+          <div class="form-text">Formats acceptés : JPG, PNG, WebP. Taille max : 5 Mo.</div>
+          <div th:if="${cours.imageUrl != null and not #strings.isEmpty(cours.imageUrl)}" class="mt-2">
+            <img th:src="${cours.imageUrl}" style="height:80px;border-radius:8px;object-fit:cover;" alt="Image actuelle"/>
+            <div class="form-text">Image actuelle. Laissez vide pour conserver.</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label d-block">Statut</label>
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" id="actif" th:field="*{actif}" role="switch"/>
+            <label class="form-check-label fw-medium" for="actif">Cours actif et visible</label>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex gap-2 pt-2">
+          <button class="btn btn-primary px-4" type="submit">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+          <a th:href="@{/ui/cours}" class="btn btn-outline-secondary px-4">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

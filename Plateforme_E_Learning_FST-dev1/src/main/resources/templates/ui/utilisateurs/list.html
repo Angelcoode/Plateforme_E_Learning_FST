@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Utilisateurs')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+<main class="container my-5 flex-grow-1">
+  <div class="page-header d-flex justify-content-between align-items-center">
+    <h1 class="page-title"><i class="bi bi-people text-primary me-2"></i>Utilisateurs</h1>
+    <a class="btn btn-primary" th:href="@{/ui/utilisateurs/new}"><i class="bi bi-person-plus me-1"></i>Nouvel utilisateur</a>
+  </div>
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr>
+          <th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th class="text-end">Actions</th>
+        </tr></thead>
+        <tbody>
+          <tr th:each="u : ${utilisateurs}">
+            <td class="text-muted small" th:text="${u.id}">1</td>
+            <td class="fw-medium" th:text="${u.nom}">Nom</td>
+            <td class="text-muted small" th:text="${u.email}">email@fst.ma</td>
+            <td>
+              <span class="badge"
+                    th:classappend="${u.role != null and u.role.name() == 'ADMIN'} ? 'text-bg-danger' :
+                                   (${u.role != null and u.role.name() == 'FORMATEUR'} ? 'text-bg-success' : 'text-bg-info')"
+                    th:text="${u.role}">ROLE</span>
+            </td>
+            <td class="text-end">
+              <a class="btn btn-outline-primary btn-sm me-1" th:href="@{/ui/utilisateurs/{id}/edit(id=${u.id})}"><i class="bi bi-pencil"></i></a>
+              <form th:action="@{/ui/utilisateurs/{id}/delete(id=${u.id})}" method="post" class="d-inline"
+                    onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                <button class="btn btn-outline-danger btn-sm" type="submit" th:disabled="${u.role != null and u.role.name() == 'ADMIN' and u.email == 'admin@fst.ma'}"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(utilisateurs)}">
+            <td colspan="5" class="text-center text-muted py-5">Aucun utilisateur trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>
