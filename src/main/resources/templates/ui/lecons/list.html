@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Leçons')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+<main class="container my-5 flex-grow-1">
+  <div class="page-header d-flex justify-content-between align-items-center">
+    <h1 class="page-title"><i class="bi bi-file-earmark-play text-primary me-2"></i>Leçons</h1>
+    <a class="btn btn-primary" th:href="@{/ui/lecons/new}"><i class="bi bi-plus-lg me-1"></i>Nouvelle leçon</a>
+  </div>
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr>
+          <th>ID</th><th>Titre</th><th>Module</th><th>Ordre</th><th>Durée</th><th class="text-end">Actions</th>
+        </tr></thead>
+        <tbody>
+          <tr th:each="l : ${lecons}">
+            <td class="text-muted small" th:text="${l.id}">1</td>
+            <td class="fw-medium" th:text="${l.titre}">Titre</td>
+            <td class="text-muted small" th:text="${l.module != null ? l.module.titre : '—'}">—</td>
+            <td><span class="badge bg-light text-dark border" th:text="${l.ordre}">1</span></td>
+            <td class="text-muted small" th:text="${l.dureeMin} + ' min'">15 min</td>
+            <td class="text-end">
+              <a class="btn btn-outline-primary btn-sm me-1" th:href="@{/ui/lecons/{id}/edit(id=${l.id})}"><i class="bi bi-pencil"></i></a>
+              <form th:action="@{/ui/lecons/{id}/delete(id=${l.id})}" method="post" class="d-inline"
+                    onsubmit="return confirm('Supprimer cette leçon ?');">
+                <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(lecons)}">
+            <td colspan="6" class="text-center text-muted py-5">Aucune leçon créée.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

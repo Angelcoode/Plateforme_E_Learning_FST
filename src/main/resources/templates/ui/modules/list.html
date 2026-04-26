@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/fragments :: head('Modules')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+<main class="container my-5 flex-grow-1">
+  <div class="page-header d-flex justify-content-between align-items-center">
+    <h1 class="page-title"><i class="bi bi-layers text-primary me-2"></i>Modules</h1>
+    <a class="btn btn-primary" th:href="@{/ui/modules/new}"><i class="bi bi-plus-lg me-1"></i>Nouveau module</a>
+  </div>
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr>
+          <th>ID</th><th>Titre</th><th>Ordre</th><th>Cours</th><th class="text-end">Actions</th>
+        </tr></thead>
+        <tbody>
+          <tr th:each="m : ${modules}">
+            <td class="text-muted small" th:text="${m.id}">1</td>
+            <td class="fw-medium" th:text="${m.titre}">Titre</td>
+            <td><span class="badge bg-light text-dark border" th:text="${m.ordre}">1</span></td>
+            <td class="text-muted small" th:text="${m.cours != null ? m.cours.titre : '—'}">—</td>
+            <td class="text-end">
+              <a class="btn btn-outline-primary btn-sm me-1" th:href="@{/ui/modules/{id}/edit(id=${m.id})}"><i class="bi bi-pencil"></i></a>
+              <form th:action="@{/ui/modules/{id}/delete(id=${m.id})}" method="post" class="d-inline"
+                    onsubmit="return confirm('Supprimer ce module ?');">
+                <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(modules)}">
+            <td colspan="5" class="text-center text-muted py-5">Aucun module créé.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

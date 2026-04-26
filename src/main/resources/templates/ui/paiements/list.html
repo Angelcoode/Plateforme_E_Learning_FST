@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/fragments :: head('Gestion des Paiements')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1">
+
+  <!-- Header -->
+  <div class="page-header d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h1 class="page-title"><i class="bi bi-credit-card text-primary me-2"></i>Paiements</h1>
+      <p class="text-muted small mt-1 mb-0">Gestion de toutes les transactions financières</p>
+    </div>
+    <span class="badge bg-primary px-3 py-2 rounded-pill">
+      <i class="bi bi-shield-check me-1"></i>ADMIN
+    </span>
+  </div>
+
+  <!-- Flash messages -->
+  <div class="alert alert-success d-flex gap-2 align-items-center border-0 rounded-3"
+       th:if="${successMsg}">
+    <i class="bi bi-check-circle-fill"></i><span th:text="${successMsg}"></span>
+  </div>
+  <div class="alert alert-danger d-flex gap-2 align-items-center border-0 rounded-3"
+       th:if="${errorMsg}">
+    <i class="bi bi-x-circle-fill"></i><span th:text="${errorMsg}"></span>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body d-flex align-items-center gap-3 p-3">
+          <div class="rounded-3 d-flex align-items-center justify-content-center"
+               style="width:48px;height:48px;background:#ede9fe;">
+            <i class="bi bi-wallet2 text-primary fs-5"></i>
+          </div>
+          <div>
+            <div class="text-muted" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Revenu validé</div>
+            <div class="fw-bold fs-5 lh-1 text-primary" th:text="${#numbers.formatDecimal(totalRevenu,1,2)} + ' TND'">0 TND</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body d-flex align-items-center gap-3 p-3">
+          <div class="rounded-3 d-flex align-items-center justify-content-center"
+               style="width:48px;height:48px;background:#fef9c3;">
+            <i class="bi bi-hourglass-split text-warning fs-5"></i>
+          </div>
+          <div>
+            <div class="text-muted" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">En attente</div>
+            <div class="fw-bold fs-5 lh-1 text-warning" th:text="${nbEnAttente}">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body d-flex align-items-center gap-3 p-3">
+          <div class="rounded-3 d-flex align-items-center justify-content-center"
+               style="width:48px;height:48px;background:#dcfce7;">
+            <i class="bi bi-check2-circle text-success fs-5"></i>
+          </div>
+          <div>
+            <div class="text-muted" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Validés</div>
+            <div class="fw-bold fs-5 lh-1 text-success" th:text="${nbValide}">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body d-flex align-items-center gap-3 p-3">
+          <div class="rounded-3 d-flex align-items-center justify-content-center"
+               style="width:48px;height:48px;background:#fee2e2;">
+            <i class="bi bi-x-circle text-danger fs-5"></i>
+          </div>
+          <div>
+            <div class="text-muted" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Refusés</div>
+            <div class="fw-bold fs-5 lh-1 text-danger"
+                 th:text="${page.totalElements - nbValide - nbEnAttente}">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body d-flex flex-wrap gap-2 align-items-center p-3">
+      <span class="text-muted small fw-semibold me-1"><i class="bi bi-funnel me-1"></i>Filtrer :</span>
+      <a th:href="@{/ui/paiements}"
+         class="btn btn-sm rounded-pill"
+         th:classappend="${filtreStatut == null} ? 'btn-primary' : 'btn-outline-secondary'">
+        Tous
+      </a>
+      <a th:each="s : ${statuts}"
+         th:href="@{/ui/paiements(statut=${s.name()})}"
+         class="btn btn-sm rounded-pill"
+         th:classappend="${filtreStatut == s.name()} ? 'btn-primary' : 'btn-outline-secondary'"
+         th:text="${s.name()}">
+      </a>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3">Référence</th>
+            <th>Apprenant</th>
+            <th>Cours</th>
+            <th>Montant</th>
+            <th>Méthode</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th class="text-end pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="p : ${paiements}">
+            <td class="ps-3">
+              <span class="font-monospace small fw-semibold text-primary"
+                    th:text="${p.reference}">FST-XXXX</span>
+            </td>
+            <td>
+              <div class="fw-semibold small" th:text="${p.apprenant.nom}">Nom</div>
+              <div class="text-muted" style="font-size:0.75rem;" th:text="${p.apprenant.email}">email</div>
+            </td>
+            <td>
+              <span class="small" th:text="${p.cours.titre}">Cours</span>
+            </td>
+            <td>
+              <span class="fw-bold text-primary"
+                    th:text="${#numbers.formatDecimal(p.montant,1,2)} + ' TND'">0 TND</span>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border small"
+                    th:text="${p.methode ?: '—'}">—</span>
+            </td>
+            <td>
+              <span class="small text-muted"
+                    th:text="${#temporals.format(p.dateCreation,'dd/MM/yyyy')}">—</span>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-2 py-1"
+                    th:classappend="${p.statut.name() == 'VALIDE'} ? 'bg-success' :
+                                    (${p.statut.name() == 'EN_ATTENTE'} ? 'bg-warning text-dark' :
+                                    (${p.statut.name() == 'REFUSE'} ? 'bg-danger' : 'bg-secondary'))"
+                    th:text="${p.statut}">STATUT</span>
+            </td>
+            <td class="text-end pe-3">
+              <div class="d-flex justify-content-end gap-1">
+                <!-- Validate -->
+                <form th:if="${p.statut.name() == 'EN_ATTENTE'}"
+                      th:action="@{/ui/paiements/{id}/valider(id=${p.id})}" method="post">
+                  <button class="btn btn-success btn-sm px-2" type="submit" title="Valider"
+                          onclick="return confirm('Valider ce paiement et inscrire l\'apprenant ?')">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                </form>
+                <!-- Refuse -->
+                <form th:if="${p.statut.name() == 'EN_ATTENTE'}"
+                      th:action="@{/ui/paiements/{id}/refuser(id=${p.id})}" method="post">
+                  <button class="btn btn-danger btn-sm px-2" type="submit" title="Refuser">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </form>
+                <!-- Rembourser -->
+                <form th:if="${p.statut.name() == 'VALIDE'}"
+                      th:action="@{/ui/paiements/{id}/rembourser(id=${p.id})}" method="post">
+                  <button class="btn btn-warning btn-sm px-2" type="submit" title="Rembourser"
+                          onclick="return confirm('Rembourser ce paiement ?')">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(paiements)}">
+            <td colspan="8" class="text-center py-5 text-muted">
+              <i class="bi bi-credit-card" style="font-size:2rem;"></i>
+              <div class="mt-2">Aucun paiement trouvé</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer bg-transparent border-0 d-flex justify-content-center py-3"
+         th:if="${page.totalPages > 1}">
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link" th:href="@{/ui/paiements(page=${page.number - 1})}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+              th:classappend="${i == page.number} ? 'active'">
+            <a class="page-link" th:href="@{/ui/paiements(page=${i})}" th:text="${i + 1}">1</a>
+          </li>
+          <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link" th:href="@{/ui/paiements(page=${page.number + 1})}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

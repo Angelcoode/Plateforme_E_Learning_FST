@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head(${inscription.id != null ? 'Modifier inscription' : 'Nouvelle inscription'})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+<main class="container my-5 flex-grow-1" style="max-width:640px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="@{/ui/inscriptions}" class="btn btn-sm btn-outline-secondary btn-icon"><i class="bi bi-arrow-left"></i></a>
+    <h1 class="page-title" th:text="${inscription.id != null ? 'Modifier inscription' : 'Nouvelle inscription'}">Inscription</h1>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <form th:object="${inscription}"
+            th:action="${inscription.id != null ? '/ui/inscriptions/' + inscription.id : '/ui/inscriptions'}"
+            method="post" class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Apprenant</label>
+          <select class="form-select" name="apprenantId" required>
+            <option value="">— Choisir —</option>
+            <option th:each="u : ${apprenants}" th:value="${u.id}"
+                    th:selected="${inscription.apprenant != null and inscription.apprenant.id == u.id}"
+                    th:text="${u.nom + ' (' + u.email + ')'}">Apprenant</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Cours</label>
+          <select class="form-select" name="coursId" required>
+            <option value="">— Choisir —</option>
+            <option th:each="c : ${cours}" th:value="${c.id}"
+                    th:selected="${inscription.cours != null and inscription.cours.id == c.id}"
+                    th:text="${c.titre}">Cours</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Date d'inscription</label>
+          <input class="form-control" type="date" th:field="*{dateInscription}"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Statut</label>
+          <select class="form-select" th:field="*{statut}">
+            <option th:each="s : ${statuts}" th:value="${s}" th:text="${s}">STATUT</option>
+          </select>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button class="btn btn-primary px-4" type="submit"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+          <a th:href="@{/ui/inscriptions}" class="btn btn-outline-secondary px-4">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

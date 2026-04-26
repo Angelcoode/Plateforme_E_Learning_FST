@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/fragments :: head(${cours.titre})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="flex-grow-1">
+
+  <!-- Hero -->
+  <div style="background:linear-gradient(135deg,#1e293b 0%,#312e81 100%); color:#fff; padding:3rem 0 2rem;">
+    <div class="container">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0" style="--bs-breadcrumb-divider-color:rgba(255,255,255,0.4);">
+          <li class="breadcrumb-item"><a th:href="@{/ui/cours}" class="text-white-50 text-decoration-none small">Catalogue</a></li>
+          <li class="breadcrumb-item active text-white small" th:text="${cours.titre}">Cours</li>
+        </ol>
+      </nav>
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <div class="d-flex gap-2 mb-3">
+            <span class="badge text-bg-primary rounded-pill" th:text="${cours.niveau}">NIVEAU</span>
+            <span class="badge rounded-pill" style="background:rgba(255,255,255,0.15);" th:text="${cours.categorie ?: 'Général'}">Cat</span>
+          </div>
+          <h1 class="fw-bold mb-3" style="font-size:2rem;line-height:1.2;" th:text="${cours.titre}">Titre</h1>
+          <p class="mb-4" style="color:rgba(255,255,255,0.8);max-width:600px;" th:text="${cours.description}">Description</p>
+          <div class="d-flex flex-wrap align-items-center gap-4 small" style="color:rgba(255,255,255,0.7);">
+            <span><i class="bi bi-person-video me-1"></i><span th:text="${cours.formateur != null ? cours.formateur.nom : '—'}">Formateur</span></span>
+            <span><i class="bi bi-layers me-1"></i><span th:text="${#lists.size(modules)} + ' modules'">N modules</span></span>
+            <span th:if="${noteAvg > 0}">
+              <i class="bi bi-star-fill text-warning me-1"></i>
+              <span th:text="${#numbers.formatDecimal(noteAvg,1,1)}">4.5</span>
+              <span class="text-white-50">(<span th:text="${#lists.size(avis)}">0</span> avis)</span>
+            </span>
+          </div>
+        </div>
+        <div class="col-lg-4" th:if="${cours.imageUrl != null and not #strings.isEmpty(cours.imageUrl)}">
+          <img th:src="${cours.imageUrl}" class="img-fluid rounded-3 shadow" style="max-height:220px;width:100%;object-fit:cover;" alt="Image cours"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container my-5">
+    <div class="row g-4">
+
+      <!-- LEFT: modules + lecons -->
+      <div class="col-lg-8">
+
+        <!-- Progression bar (if inscrit) -->
+        <div class="card shadow-sm mb-4" th:if="${inscrit}">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-semibold small">Votre progression</span>
+              <span class="fw-bold text-primary" th:text="${progression + '%'}">0%</span>
+            </div>
+            <div class="progress" style="height:10px;">
+              <div class="progress-bar" th:style="'width:' + ${progression} + '%'" role="progressbar"></div>
+            </div>
+            <div class="mt-3" th:if="${progression >= 100}">
+              <a th:href="@{/ui/certificat/{uid}/{cid}(uid=${utilisateur.id},cid=${cours.id})}"
+                 class="btn btn-success btn-sm">
+                <i class="bi bi-award-fill me-1"></i>Télécharger mon certificat
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modules & Leçons -->
+        <h2 class="h5 fw-bold mb-3"><i class="bi bi-layers me-2 text-primary"></i>Contenu du cours</h2>
+
+        <div class="accordion" id="accordionModules">
+          <div class="accordion-item border rounded-3 mb-3 shadow-sm"
+               th:each="m, ms : ${modules}">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-semibold"
+                      th:classappend="${ms.index > 0} ? 'collapsed'"
+                      type="button" data-bs-toggle="collapse"
+                      th:attr="data-bs-target='#module-' + ${m.id}">
+                <i class="bi bi-collection me-2 text-primary"></i>
+                <span th:text="'Module ' + ${ms.count} + ' : ' + ${m.titre}">Module</span>
+              </button>
+            </h2>
+            <div th:id="'module-' + ${m.id}"
+                 th:classappend="${ms.index == 0} ? 'show'"
+                 class="accordion-collapse collapse"
+                 data-bs-parent="#accordionModules">
+              <div class="accordion-body p-0">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3"
+                      th:each="l : ${m.lecons}">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                           style="width:32px;height:32px;">
+                        <i class="bi bi-file-earmark-play text-primary" style="font-size:0.8rem;"></i>
+                      </div>
+                      <div>
+                        <div class="fw-medium small" th:text="${l.titre}">Leçon</div>
+                        <div class="text-muted" style="font-size:0.75rem;" th:text="${l.dureeMin + ' min'}">15 min</div>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2" th:if="${inscrit}">
+                      <form th:action="@{/ui/certificat/mark-complete/{aid}/{lid}(aid=${utilisateur.id},lid=${l.id})}"
+                            method="post">
+                        <input type="hidden" name="coursId" th:value="${cours.id}"/>
+                        <button type="submit" class="btn btn-sm btn-outline-success">
+                          <i class="bi bi-check2-circle me-1"></i>Terminer
+                        </button>
+                      </form>
+                    </div>
+                  </li>
+                  <!-- Quiz for this module -->
+                  <li class="list-group-item px-4 py-3 bg-light" th:if="${m.quiz != null}">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:32px;height:32px;background:#fef9c3;">
+                          <i class="bi bi-patch-question text-warning" style="font-size:0.85rem;"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold small" th:text="${m.quiz.titre}">Quiz</div>
+                          <div class="text-muted" style="font-size:0.75rem;" th:text="${#lists.size(m.quiz.questions)} + ' questions'">N questions</div>
+                        </div>
+                      </div>
+                      <a th:if="${inscrit}" class="btn btn-sm btn-warning"
+                         th:href="@{/ui/quiz/{id}(id=${m.quiz.id})}">
+                        <i class="bi bi-play-fill me-1"></i>Passer le quiz
+                      </a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avis Section -->
+        <div id="avis" class="mt-5">
+          <h2 class="h5 fw-bold mb-4"><i class="bi bi-star me-2 text-warning"></i>Avis et évaluations</h2>
+
+          <!-- Average rating display -->
+          <div class="card shadow-sm mb-4" th:if="${noteAvg > 0}">
+            <div class="card-body d-flex align-items-center gap-4 py-3">
+              <div class="text-center">
+                <div class="display-5 fw-bold text-primary" th:text="${#numbers.formatDecimal(noteAvg,1,1)}">4.5</div>
+                <div class="small text-muted">/ 5</div>
+              </div>
+              <div>
+                <div class="d-flex gap-1 mb-1">
+                  <i th:each="i : ${#numbers.sequence(1,5)}"
+                     th:class="${i <= noteAvg ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'}"
+                     style="font-size:1.2rem;"></i>
+                </div>
+                <div class="small text-muted" th:text="${#lists.size(avis)} + ' avis'">N avis</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post an avis -->
+          <div class="card shadow-sm mb-4" th:if="${inscrit}">
+            <div class="card-header"><i class="bi bi-pencil me-1"></i>Laisser un avis</div>
+            <div class="card-body">
+              <form th:action="@{/ui/cours/{id}/avis(id=${cours.id})}" method="post">
+                <div class="mb-3">
+                  <label class="form-label">Note</label>
+                  <div class="d-flex gap-2">
+                    <th:block th:each="n : ${#numbers.sequence(1,5)}">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="note"
+                               th:id="'note' + ${n}" th:value="${n}"
+                               th:checked="${monAvis != null and monAvis.note == n}" required/>
+                        <label class="form-check-label" th:for="'note' + ${n}">
+                          <i class="bi bi-star-fill text-warning"></i> <span th:text="${n}">N</span>
+                        </label>
+                      </div>
+                    </th:block>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="commentaire">Commentaire (optionnel)</label>
+                  <textarea class="form-control" id="commentaire" name="commentaire" rows="3"
+                            placeholder="Partagez votre expérience..."
+                            th:text="${monAvis != null ? monAvis.commentaire : ''}"></textarea>
+                </div>
+                <button class="btn btn-warning btn-sm px-4" type="submit">
+                  <i class="bi bi-send me-1"></i>Publier mon avis
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Avis list -->
+          <div class="vstack gap-3">
+            <div class="card shadow-sm" th:each="a : ${avis}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div class="fw-semibold small" th:text="${a.utilisateur.nom}">Nom</div>
+                  <div class="d-flex gap-1">
+                    <i th:each="i : ${#numbers.sequence(1,5)}"
+                       th:class="${i <= a.note ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'}"
+                       style="font-size:0.85rem;"></i>
+                  </div>
+                </div>
+                <p class="text-muted small mb-0" th:text="${a.commentaire}">Commentaire</p>
+              </div>
+            </div>
+            <div th:if="${#lists.isEmpty(avis)}" class="text-muted small fst-italic">Aucun avis pour ce cours.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: enrollment sidebar -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top:80px;">
+          <div class="card-body p-4">
+            <div th:if="${not inscrit}">
+              <h3 class="h6 fw-bold mb-1">Rejoindre ce cours</h3>
+              <p class="text-muted small mb-4">Inscrivez-vous pour accéder aux leçons et quiz.</p>
+              <form th:action="@{/ui/cours/{id}/inscrire(id=${cours.id})}" method="post">
+                <button class="btn btn-primary w-100 py-2" type="submit">
+                  <i class="bi bi-person-plus me-1"></i>S'inscrire gratuitement
+                </button>
+              </form>
+            </div>
+            <div th:if="${inscrit}">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                <span class="fw-semibold small">Inscrit à ce cours</span>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-muted">Progression</span>
+                  <span class="fw-bold text-primary" th:text="${progression + '%'}">0%</span>
+                </div>
+                <div class="progress" style="height:8px;">
+                  <div class="progress-bar" th:style="'width:' + ${progression} + '%'"></div>
+                </div>
+              </div>
+              <a th:if="${progression >= 100}"
+                 th:href="@{/ui/certificat/{uid}/{cid}(uid=${utilisateur.id},cid=${cours.id})}"
+                 class="btn btn-success w-100 mb-2">
+                <i class="bi bi-award-fill me-1"></i>Obtenir mon certificat
+              </a>
+            </div>
+
+            <hr class="my-3"/>
+            <div class="vstack gap-2">
+              <div class="d-flex align-items-center gap-2 small">
+                <i class="bi bi-layers text-primary"></i>
+                <span><span th:text="${#lists.size(modules)}">0</span> modules</span>
+              </div>
+              <div class="d-flex align-items-center gap-2 small text-muted" sec:authorize="hasAnyRole('ADMIN','FORMATEUR')">
+                <i class="bi bi-pencil text-muted"></i>
+                <a th:href="@{/ui/cours/{id}/edit(id=${cours.id})}" class="text-muted text-decoration-none">Modifier ce cours</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

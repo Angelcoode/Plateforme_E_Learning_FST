@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/fragments :: head('Dashboard')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1">
+
+  <!-- ═══════════ ADMIN ═══════════ -->
+  <div sec:authorize="hasRole('ADMIN')">
+    <div class="page-header d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h1 class="page-title"><i class="bi bi-speedometer2 text-primary me-2"></i>Tableau de bord</h1>
+        <p class="text-muted small mt-1 mb-0">Administration — E-Learning FST</p>
+      </div>
+      <span class="badge bg-primary px-3 py-2 rounded-pill">
+        <i class="bi bi-shield-check me-1"></i>ADMIN
+      </span>
+    </div>
+
+    <!-- Stats row 1 -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#ede9fe;">
+              <i class="bi bi-collection-play text-primary fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Cours</div>
+              <div class="fw-bold fs-3 lh-1" th:text="${totalCours ?: 0}">0</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/cours}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#dcfce7;">
+              <i class="bi bi-people text-success fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Apprenants</div>
+              <div class="fw-bold fs-3 lh-1" th:text="${totalApprenants ?: 0}">0</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/utilisateurs}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#fef9c3;">
+              <i class="bi bi-person-video text-warning fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Formateurs</div>
+              <div class="fw-bold fs-3 lh-1" th:text="${totalFormateurs ?: 0}">0</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/utilisateurs}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#e0f2fe;">
+              <i class="bi bi-people-fill text-info fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Utilisateurs</div>
+              <div class="fw-bold fs-3 lh-1" th:text="${totalUtilisateurs ?: 0}">0</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/utilisateurs}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paiements stats row -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden"
+             style="border-left:4px solid #4f46e5 !important;">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#ede9fe;">
+              <i class="bi bi-wallet2 text-primary fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Revenu validé</div>
+              <div class="fw-bold fs-5 lh-1 text-primary"
+                   th:text="${#numbers.formatDecimal(totalRevenu ?: 0, 1, 2)} + ' TND'">0 TND</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/paiements}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100 position-relative overflow-hidden"
+             style="border-left:4px solid #f59e0b !important;">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:48px;height:48px;background:#fef9c3;">
+              <i class="bi bi-hourglass-split text-warning fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">En attente</div>
+              <div class="fw-bold fs-3 lh-1 text-warning" th:text="${nbPaiementsEnAttente ?: 0}">0</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/paiements(statut='EN_ATTENTE')}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="card shadow-sm border-0 h-100 bg-primary text-white">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <i class="bi bi-credit-card-2-front fs-3"></i>
+            <div>
+              <div class="small opacity-75">Valider les paiements en attente</div>
+              <a th:href="@{/ui/paiements(statut='EN_ATTENTE')}"
+                 class="btn btn-light btn-sm rounded-pill px-3 mt-1 fw-semibold text-primary">
+                Gérer les paiements <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-transparent border-bottom d-flex align-items-center gap-2 py-3">
+        <i class="bi bi-lightning-charge text-warning"></i>
+        <span class="fw-semibold">Actions rapides</span>
+      </div>
+      <div class="card-body p-4">
+        <div class="d-flex flex-wrap gap-2">
+          <a th:href="@{/ui/cours/new}" class="btn btn-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i>Nouveau cours
+          </a>
+          <a th:href="@{/ui/modules/new}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i>Module
+          </a>
+          <a th:href="@{/ui/lecons/new}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i>Leçon
+          </a>
+          <a th:href="@{/ui/utilisateurs/new}" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-person-plus me-1"></i>Utilisateur
+          </a>
+          <a th:href="@{/ui/paiements}" class="btn btn-outline-success rounded-pill px-3">
+            <i class="bi bi-credit-card me-1"></i>Paiements
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FORMATEUR ═══════════ -->
+  <div sec:authorize="hasRole('FORMATEUR')">
+    <div class="page-header d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h1 class="page-title"><i class="bi bi-person-video text-primary me-2"></i>Espace Formateur</h1>
+        <p class="text-muted small mt-1 mb-0">Gérez vos cours et vos leçons</p>
+      </div>
+      <span class="badge bg-success px-3 py-2 rounded-pill">
+        <i class="bi bi-person-video me-1"></i>FORMATEUR
+      </span>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 position-relative">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 d-flex align-items-center justify-content-center"
+                 style="width:48px;height:48px;background:#ede9fe;">
+              <i class="bi bi-collection-play text-primary fs-5"></i>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;">Cours</div>
+              <div class="fw-bold fs-3 lh-1" th:text="${totalCours ?: 0}">0</div>
+            </div>
+          </div>
+          <a th:href="@{/ui/cours}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-transparent border-bottom py-3">
+        <span class="fw-semibold"><i class="bi bi-lightning-charge text-warning me-1"></i>Actions rapides</span>
+      </div>
+      <div class="card-body p-4">
+        <div class="d-flex flex-wrap gap-2">
+          <a th:href="@{/ui/cours/new}" class="btn btn-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i>Nouveau cours
+          </a>
+          <a th:href="@{/ui/modules/new}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i>Module
+          </a>
+          <a th:href="@{/ui/lecons/new}" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="bi bi-plus-lg me-1"></i>Leçon
+          </a>
+          <a th:href="@{/ui/cours}" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-list me-1"></i>Voir les cours
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ APPRENANT ═══════════ -->
+  <div sec:authorize="hasRole('APPRENANT')">
+    <div class="page-header d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h1 class="page-title"><i class="bi bi-mortarboard text-primary me-2"></i>Mon espace</h1>
+        <p class="text-muted small mt-1 mb-0">Suivez votre progression</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a th:href="@{/ui/paiements/mes-paiements}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+          <i class="bi bi-receipt me-1"></i>Mes paiements
+        </a>
+        <a th:href="@{/ui/cours}" class="btn btn-primary btn-sm rounded-pill px-3">
+          <i class="bi bi-search me-1"></i>Catalogue
+        </a>
+      </div>
+    </div>
+
+    <!-- Pending payments alert -->
+    <div th:if="${mesPaiements != null and not #lists.isEmpty(mesPaiements)}"
+         class="alert alert-warning border-0 rounded-3 d-flex gap-2 align-items-center mb-4 small">
+      <i class="bi bi-hourglass-split flex-shrink-0 fs-5"></i>
+      <div>
+        Vous avez <strong th:text="${#lists.size(mesPaiements)}">N</strong> paiement(s) enregistré(s).
+        <a th:href="@{/ui/paiements/mes-paiements}" class="fw-semibold ms-1">Voir le statut →</a>
+      </div>
+    </div>
+
+    <!-- My courses -->
+    <div th:if="${inscriptions != null and not #lists.isEmpty(inscriptions)}">
+      <h2 class="h6 fw-bold mb-3 text-muted text-uppercase" style="letter-spacing:.05em;">
+        Mes cours en cours
+      </h2>
+      <div class="row g-4 mb-5">
+        <div class="col-md-6 col-lg-4" th:each="ins : ${inscriptions}">
+          <div class="card h-100 course-card shadow-sm border-0">
+            <div class="position-relative">
+              <img th:src="${ins.cours.imageUrl ?: 'https://placehold.co/400x200/4f46e5/fff?text=Cours'}"
+                   class="card-img-top" alt="Image" style="height:160px;object-fit:cover;"
+                   onerror="this.src='https://placehold.co/400x200/4f46e5/fff?text=Cours'"/>
+              <span class="badge bg-primary position-absolute top-0 start-0 m-2 rounded-pill"
+                    th:text="${ins.cours.niveau}">NIVEAU</span>
+            </div>
+            <div class="card-body d-flex flex-column p-3">
+              <h3 class="card-title h6 fw-bold mb-2" th:text="${ins.cours.titre}">Titre</h3>
+              <p class="text-muted small flex-grow-1 mb-3"
+                 th:text="${#strings.abbreviate(ins.cours.description ?: '', 70)}">Desc</p>
+              <a th:href="@{/ui/cours/{id}(id=${ins.cours.id})}"
+                 class="btn btn-primary btn-sm w-100">
+                <i class="bi bi-play-fill me-1"></i>Continuer
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${inscriptions == null or #lists.isEmpty(inscriptions)}"
+         class="card border-0 shadow-sm text-center py-5">
+      <div class="card-body">
+        <i class="bi bi-collection-play text-muted" style="font-size:3rem;"></i>
+        <h3 class="h5 mt-3 mb-2">Aucun cours en cours</h3>
+        <p class="text-muted small mb-4">Explorez le catalogue et inscrivez-vous à votre premier cours !</p>
+        <a th:href="@{/ui/cours}" class="btn btn-primary px-4 rounded-pill">
+          <i class="bi bi-search me-1"></i>Explorer les cours
+        </a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

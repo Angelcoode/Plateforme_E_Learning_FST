@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Résultat Quiz')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1" style="max-width:640px;">
+  <div class="card shadow text-center p-5">
+
+    <div th:if="${pct >= 70}">
+      <div class="mb-3" style="font-size:4rem;">🎉</div>
+      <h1 class="h3 fw-bold text-success mb-1">Félicitations !</h1>
+      <p class="text-muted mb-4">Vous avez réussi ce quiz avec succès.</p>
+    </div>
+    <div th:if="${pct < 70}">
+      <div class="mb-3" style="font-size:4rem;">📚</div>
+      <h1 class="h3 fw-bold text-danger mb-1">À améliorer</h1>
+      <p class="text-muted mb-4">Relisez les leçons et réessayez.</p>
+    </div>
+
+    <!-- Score circle -->
+    <div class="d-flex align-items-center justify-content-center mb-4">
+      <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
+           th:style="'width:140px;height:140px;background:' + (${pct >= 70} ? '#dcfce7' : '#fee2e2') + ';border:6px solid ' + (${pct >= 70} ? '#10b981' : '#ef4444')">
+        <div>
+          <div class="fw-bold" th:style="'font-size:2rem;color:' + (${pct >= 70} ? '#10b981' : '#ef4444')" th:text="${pct} + '%'">0%</div>
+          <div class="small text-muted" th:text="${result.score} + '/' + ${result.totalQuestions}">0/0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Per-question breakdown -->
+    <div class="text-start mb-4" th:if="${result.reponses != null and not #lists.isEmpty(result.reponses)}">
+      <h2 class="h6 fw-bold mb-3">Détail des réponses</h2>
+      <div class="vstack gap-2">
+        <div class="d-flex align-items-start gap-3 p-3 rounded-3"
+             th:each="r : ${result.reponses}"
+             th:style="${r.correcte} ? 'background:#f0fdf4;border:1px solid #bbf7d0;' : 'background:#fff1f2;border:1px solid #fecdd3;'">
+          <i th:class="${r.correcte} ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle-fill text-danger'"
+             class="flex-shrink-0 mt-1"></i>
+          <div class="small">
+            <div class="fw-medium mb-1" th:text="${r.question.text}">Question</div>
+            <div>Votre réponse : <strong th:text="${r.reponseChoisie}">A</strong></div>
+            <div th:if="${not r.correcte}" class="text-success">
+              Bonne réponse : <strong th:text="${r.question.correctAnswer}">A</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-center flex-wrap">
+      <a th:href="@{/ui/quiz/{id}(id=${quiz.id})}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-repeat me-1"></i>Repasser le quiz
+      </a>
+      <a th:if="${quiz.module != null and quiz.module.cours != null}"
+         th:href="@{/ui/cours/{id}(id=${quiz.module.cours.id})}"
+         class="btn btn-primary">
+        <i class="bi bi-arrow-left me-1"></i>Retour au cours
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>

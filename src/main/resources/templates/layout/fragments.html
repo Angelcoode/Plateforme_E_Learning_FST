@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${title} + ' | E-Learning FST'">E-Learning FST</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link th:href="@{/css/app.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" style="background:#1e293b;">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/home}">
+      <div class="d-flex align-items-center justify-content-center rounded-2 bg-primary" style="width:32px;height:32px;">
+        <i class="bi bi-mortarboard-fill text-white" style="font-size:1rem;"></i>
+      </div>
+      <span>E-Learning <span class="text-primary">FST</span></span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-2">
+        <li class="nav-item">
+          <a class="nav-link px-2" th:href="@{/dashboard}">
+            <i class="bi bi-house me-1"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-2" th:href="@{/ui/cours}">
+            <i class="bi bi-collection-play me-1"></i>Catalogue
+          </a>
+        </li>
+        <!-- Apprenant menus -->
+        <li class="nav-item" sec:authorize="hasRole('APPRENANT')">
+          <a class="nav-link px-2" th:href="@{/ui/paiements/mes-paiements}">
+            <i class="bi bi-receipt me-1"></i>Mes paiements
+          </a>
+        </li>
+        <!-- Formateur menus -->
+        <li class="nav-item dropdown" sec:authorize="hasAnyRole('ADMIN','FORMATEUR')">
+          <a class="nav-link px-2 dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-layers me-1"></i>Contenu
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li>
+              <a class="dropdown-item" th:href="@{/ui/cours/new}">
+                <i class="bi bi-plus-circle me-2"></i>Nouveau cours
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/ui/modules}">
+                <i class="bi bi-layers me-2"></i>Modules
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/ui/lecons}">
+                <i class="bi bi-file-earmark-play me-2"></i>Leçons
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/ui/inscriptions}">
+                <i class="bi bi-person-check me-2"></i>Inscriptions
+              </a>
+            </li>
+          </ul>
+        </li>
+        <!-- Admin menus -->
+        <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
+          <a class="nav-link px-2 dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-shield-check me-1"></i>Admin
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li>
+              <a class="dropdown-item" th:href="@{/ui/utilisateurs}">
+                <i class="bi bi-people me-2"></i>Utilisateurs
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/ui/paiements}">
+                <i class="bi bi-credit-card me-2"></i>Paiements
+              </a>
+            </li>
+            <li><hr class="dropdown-divider border-secondary"/></li>
+            <li>
+              <a class="dropdown-item" href="/h2-console" target="_blank">
+                <i class="bi bi-database me-2"></i>Console H2
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Right side: user info + logout -->
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <div class="d-flex align-items-center gap-2" sec:authorize="isAuthenticated()">
+          <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width:30px;height:30px;">
+            <i class="bi bi-person-fill text-white" style="font-size:0.8rem;"></i>
+          </div>
+          <span class="text-white small fw-medium d-none d-lg-inline"
+                sec:authentication="name">user</span>
+        </div>
+        <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="m-0">
+          <button class="btn btn-sm btn-outline-light rounded-pill px-3" type="submit">
+            <i class="bi bi-box-arrow-right me-1"></i>Quitter
+          </button>
+        </form>
+        <div sec:authorize="!isAuthenticated()" class="d-flex gap-2">
+          <a class="btn btn-outline-light btn-sm rounded-pill px-3" th:href="@{/login}">Connexion</a>
+          <a class="btn btn-primary btn-sm rounded-pill px-3" th:href="@{/register}">S'inscrire</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<footer th:fragment="footer" style="background:#1e293b;color:#94a3b8;"
+        class="mt-auto py-4 border-top border-secondary border-opacity-25">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-mortarboard-fill text-primary"></i>
+          <span class="fw-semibold text-white small">E-Learning FST</span>
+        </div>
+        <p class="small mb-0">Plateforme d'apprentissage en ligne — Université de Tunis El Manar</p>
+      </div>
+      <div class="col-md-4">
+        <div class="fw-semibold text-white small mb-2">Navigation</div>
+        <ul class="list-unstyled small">
+          <li><a th:href="@{/home}" class="text-secondary text-decoration-none">Accueil</a></li>
+          <li><a th:href="@{/register}" class="text-secondary text-decoration-none">S'inscrire</a></li>
+          <li><a th:href="@{/ui/cours}" class="text-secondary text-decoration-none">Catalogue</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div class="small">&copy; 2026 E-Learning FST</div>
+        <div class="small mt-1 text-secondary">Spring Boot 3 · Thymeleaf · Bootstrap 5</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div th:fragment="scripts">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+</body>
+</html>

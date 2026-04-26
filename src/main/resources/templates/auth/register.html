@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Créer un compte')}"></head>
+<body class="login-page">
+
+<div class="container px-3">
+  <div class="login-card card mx-auto" style="max-width:480px;">
+    <div class="card-body p-4 p-md-5">
+
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary shadow-primary mb-3"
+             style="width:56px;height:56px;">
+          <i class="bi bi-person-plus-fill text-white fs-4"></i>
+        </div>
+        <h1 class="h4 fw-bold mb-1">Créer un compte</h1>
+        <p class="text-muted small mb-0">Rejoignez la plateforme E-Learning FST</p>
+      </div>
+
+      <!-- Errors -->
+      <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center gap-2 py-2"
+           th:if="${errorEmail}">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span class="small" th:text="${errorEmail}">Erreur email</span>
+      </div>
+      <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center gap-2 py-2"
+           th:if="${errorPassword}">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span class="small" th:text="${errorPassword}">Erreur mot de passe</span>
+      </div>
+
+      <form th:action="@{/register}" method="post" th:object="${utilisateur}" class="vstack gap-3">
+
+        <!-- Nom -->
+        <div>
+          <label class="form-label" for="nom">Nom complet</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-person text-muted"></i>
+            </span>
+            <input class="form-control border-start-0 bg-light"
+                   id="nom" th:field="*{nom}"
+                   type="text" placeholder="Ahmed Ben Ali"
+                   required autofocus/>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="form-label" for="email">Adresse email</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-envelope text-muted"></i>
+            </span>
+            <input class="form-control border-start-0 bg-light"
+                   id="email" th:field="*{email}"
+                   type="email" placeholder="vous@exemple.com"
+                   autocomplete="email" required/>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="form-label" for="password">Mot de passe</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-lock text-muted"></i>
+            </span>
+            <input class="form-control border-start-0 bg-light"
+                   id="password" th:field="*{password}"
+                   type="password" placeholder="Minimum 6 caractères"
+                   autocomplete="new-password" required minlength="6"/>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label class="form-label" for="confirmPassword">Confirmer le mot de passe</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-lock-fill text-muted"></i>
+            </span>
+            <input class="form-control border-start-0 bg-light"
+                   id="confirmPassword" name="confirmPassword"
+                   type="password" placeholder="Répétez le mot de passe"
+                   autocomplete="new-password" required minlength="6"/>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-100 py-2 mt-1 shadow-primary" type="submit">
+          Créer mon compte <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </form>
+
+      <hr class="my-4"/>
+      <div class="text-center">
+        <p class="text-muted small mb-0">
+          Déjà inscrit ?
+          <a th:href="@{/login}" class="text-primary fw-semibold text-decoration-none">Se connecter</a>
+        </p>
+        <p class="text-muted small mt-2 mb-0">
+          <a th:href="@{/home}" class="text-muted text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i>Retour à l'accueil
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{layout/fragments :: scripts}"></div>
+</body>
+</html>
