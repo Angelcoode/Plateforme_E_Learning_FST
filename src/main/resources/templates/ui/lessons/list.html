@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout/fragments :: head('Lessons')"></head>
+<body>
+<div th:replace="layout/fragments :: navbar"></div>
+
+<main class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 m-0">Lessons</h1>
+    <a class="btn btn-dark" th:href="@{/ui/lessons/new}">Nouvelle lesson</a>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Titre</th>
+          <th>Module</th>
+          <th>Ordre</th>
+          <th>Durée (min)</th>
+          <th class="text-end">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="l : ${lessons}">
+          <td th:text="${l.id}">1</td>
+          <td th:text="${l.titre}">Titre</td>
+          <td th:text="${l.module != null ? l.module.titre : '-'}">-</td>
+          <td th:text="${l.ordre}">1</td>
+          <td th:text="${l.dureeMin}">10</td>
+          <td class="text-end">
+            <a class="btn btn-outline-primary btn-sm" th:href="@{|/ui/lessons/${l.id}/edit|}">Modifier</a>
+            <form th:action="@{|/ui/lessons/${l.id}/delete|}" method="post" class="d-inline">
+              <button class="btn btn-outline-danger btn-sm" type="submit"
+                      onclick="return confirm('Supprimer cette lesson ?');">Supprimer</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(lessons)}">
+          <td colspan="5" class="text-center text-muted py-4">Aucune lesson.</td>
+          <td></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div th:replace="layout/fragments :: footer"></div>
+<div th:replace="layout/fragments :: scripts"></div>
+</body>
+</html>
+

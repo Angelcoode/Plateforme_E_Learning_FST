@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<<<<<<< HEAD
 <head th:replace="~{layout/fragments :: head(${progression.id != null ? 'Modifier progression' : 'Nouvelle progression'})}"></head>
 <body class="d-flex flex-column min-vh-100">
 <nav th:replace="~{layout/fragments :: navbar}"></nav>
@@ -40,12 +41,76 @@
         <div class="col-12 d-flex gap-2">
           <button class="btn btn-primary px-4" type="submit"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
           <a th:href="@{/ui/progressions}" class="btn btn-outline-secondary px-4">Annuler</a>
+=======
+<head th:replace="layout/fragments :: head(${progression.id} != null ? 'Modifier progression' : 'Nouvelle progression')"></head>
+<body>
+<div th:replace="layout/fragments :: navbar"></div>
+
+<main class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 m-0" th:text="${progression.id} != null ? 'Modifier progression' : 'Nouvelle progression'">Progression</h1>
+    <a class="btn btn-outline-secondary" th:href="@{/ui/progressions}">Retour</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form th:object="${progression}"
+            th:action="${progression.id} != null ? @{|/ui/progressions/${progression.id}|} : @{/ui/progressions}"
+            method="post" class="row g-3">
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Apprenant</label>
+          <select class="form-select" name="apprenantId">
+            <option value="" th:selected="${progression.apprenant == null}">—</option>
+            <option th:each="u : ${apprenants}"
+                    th:value="${u.id}"
+                    th:selected="${progression.apprenant != null and progression.apprenant.id == u.id}"
+                    th:text="${u.nom + ' (' + u.email + ')'}">User</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Lesson</label>
+          <select class="form-select" name="lessonId">
+            <option value="" th:selected="${progression.lesson == null}">—</option>
+            <option th:each="l : ${lessons}"
+                    th:value="${l.id}"
+                    th:selected="${progression.lesson != null and progression.lesson.id == l.id}"
+                    th:text="${l.titre}">Lesson</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Complétée</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" th:field="*{completee}" />
+            <label class="form-check-label">Marquer comme terminée</label>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-8">
+          <label class="form-label">Date completion (auto si complétée)</label>
+          <input class="form-control" th:field="*{dateCompletion}" placeholder="2026-04-21T10:30:00" />
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-dark" type="submit">Enregistrer</button>
+>>>>>>> 8685eff32ed09d07fd0d68de2a4a1a1f2fe1477a
         </div>
       </form>
     </div>
   </div>
 </main>
+<<<<<<< HEAD
 <footer th:replace="~{layout/fragments :: footer}"></footer>
 <div th:replace="~{layout/fragments :: scripts}"></div>
 </body>
 </html>
+=======
+
+<div th:replace="layout/fragments :: footer"></div>
+<div th:replace="layout/fragments :: scripts"></div>
+</body>
+</html>
+
+>>>>>>> 8685eff32ed09d07fd0d68de2a4a1a1f2fe1477a
