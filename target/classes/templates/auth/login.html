@@ -1,0 +1,160 @@
+```html
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Connexion')}">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body class="login-page">
+
+<div class="container px-3 login-container">
+  <div class="login-card card mx-auto">
+
+    <!-- SHIMMER TOP BAR -->
+    <div class="card-shimmer"></div>
+
+    <div class="card-body p-4 p-md-5">
+
+      <!-- HEADER -->
+      <div class="text-center mb-4 login-header">
+        <div class="logo-container mb-3">
+          <div class="logo-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+        </div>
+
+        <h1 class="h4 fw-bold mb-1 title-animate">Connexion</h1>
+        <p class="text-muted small subtitle-animate">
+          Bienvenue sur E-Learning FST
+        </p>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="alert alert-danger custom-alert"
+           th:if="${param.error}">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>Identifiants invalides</span>
+        </div>
+        <button type="button" class="btn-close-alert">&times;</button>
+      </div>
+
+      <div class="alert alert-success custom-alert"
+           th:if="${param.logout}">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>Déconnexion réussie</span>
+      </div>
+
+      <div class="alert alert-success custom-alert"
+           th:if="${param.registered}">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>Compte créé avec succès !</span>
+      </div>
+
+      <!-- FORM -->
+      <form th:action="@{/login}" method="post" class="vstack gap-3 login-form">
+
+        <!-- EMAIL -->
+        <div class="input-group-animated">
+          <label class="form-label" for="username">Adresse email</label>
+          <div class="input-group custom-input">
+            <span class="input-group-text">
+              <i class="bi bi-envelope"></i>
+            </span>
+            <input class="form-control"
+                   id="username"
+                   name="username"
+                   type="email"
+                   placeholder="admin@fst.ma"
+                   autocomplete="username"
+                   required autofocus>
+          </div>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="input-group-animated">
+          <label class="form-label" for="password">Mot de passe</label>
+          <div class="input-group custom-input password-wrapper">
+
+            <span class="input-group-text">
+              <i class="bi bi-lock"></i>
+            </span>
+
+            <input class="form-control"
+                   id="password"
+                   name="password"
+                   type="password"
+                   placeholder="••••••••"
+                   autocomplete="current-password"
+                   required>
+
+            <!-- TOGGLE PASSWORD -->
+            <button type="button" class="toggle-password">
+              <i class="bi bi-eye"></i>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- SUBMIT BUTTON -->
+        <button class="btn submit-btn w-100 mt-2" type="submit">
+          <span>Se connecter</span>
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+      </form>
+
+      <!-- DIVIDER -->
+      <div class="divider"></div>
+
+      <!-- REGISTER -->
+      <div class="text-center mb-3 register-block">
+        <p class="text-muted small mb-1">Pas encore de compte ?</p>
+        <a th:href="@{/register}" class="btn btn-outline-primary btn-sm rounded-pill px-4">
+          <i class="bi bi-person-plus me-1"></i>Créer un compte
+        </a>
+      </div>
+
+      <!-- HOME -->
+      <div class="text-center mb-3 home-link">
+        <a th:href="@{/home}" class="text-muted small text-decoration-none">
+          <i class="bi bi-arrow-left me-1"></i>Retour à l'accueil
+        </a>
+      </div>
+
+      <!-- DEMO ACCOUNTS -->
+      <div class="demo-accounts text-center">
+        <p class="text-muted small mb-1">Comptes de démonstration</p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+
+          <span class="badge demo-badge admin"
+                onclick="fillDemo('admin@fst.ma','admin123')">
+            <i class="bi bi-shield-check me-1"></i>Admin
+          </span>
+
+          <span class="badge demo-badge formateur"
+                onclick="fillDemo('formateur@fst.ma','formateur123')">
+            <i class="bi bi-person-video me-1"></i>Formateur
+          </span>
+
+          <span class="badge demo-badge apprenant"
+                onclick="fillDemo('apprenant@fst.ma','apprenant123')">
+            <i class="bi bi-person me-1"></i>Apprenant
+          </span>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<div th:replace="~{layout/fragments :: scripts}"></div>
+<script src="/js/login_animations.js"></script>
+<link rel="stylesheet" href="/css/login_animations.css">
+
+</body>
+</html>
+```

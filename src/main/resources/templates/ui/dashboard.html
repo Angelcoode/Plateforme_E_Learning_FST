@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{layout/fragments :: head('Dashboard')}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        animation: fadeUp 0.6s ease;
+        overflow: hidden;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    .icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .action-btn {
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .payment-stat-card {
+        border-radius: 16px;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+    }
+
+    .payment-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 26px rgba(0,0,0,0.12);
+    }
+
+    .cours-card {
+        border-radius: 14px;
+        border: 1px solid #e8edf3;
+        transition: all 0.3s ease;
+    }
+
+    .cours-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        transform: translateY(-3px);
+    }
+
+    .progress {
+        height: 8px;
+        border-radius: 20px;
+    }
+
+    .badge-statut {
+        font-size: 0.72rem;
+        border-radius: 50px;
+        padding: 4px 10px;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(25px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<main class="container my-5 flex-grow-1">
+
+    <!-- ================= ADMIN ================= -->
+    <div sec:authorize="hasRole('ADMIN')">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="section-title">
+                    <i class="bi bi-speedometer2 text-primary me-2"></i>Tableau de bord Admin
+                </h1>
+                <p class="text-muted mb-0">Gestion complète de la plateforme E-Learning</p>
+            </div>
+            <span class="badge bg-primary rounded-pill px-3 py-2">ADMIN</span>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-primary-subtle text-primary">
+                            <i class="bi bi-collection-play"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Cours</small>
+                            <h3 class="fw-bold mb-0" th:text="${totalCours ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-success-subtle text-success">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Apprenants</small>
+                            <h3 class="fw-bold mb-0" th:text="${totalApprenants ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-warning-subtle text-warning">
+                            <i class="bi bi-person-video"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Formateurs</small>
+                            <h3 class="fw-bold mb-0" th:text="${totalFormateurs ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-info-subtle text-info">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Utilisateurs</small>
+                            <h3 class="fw-bold mb-0" th:text="${totalUtilisateurs ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion des paiements -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold text-success">
+                    <i class="bi bi-cash-coin me-2"></i>Gestion des paiements
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="payment-stat-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-box bg-warning-subtle text-warning">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Paiements en attente</small>
+                                    <h4 class="fw-bold mb-0" th:text="${nbPaiementsEnAttente ?: 0}">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="payment-stat-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-box bg-success-subtle text-success">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Paiements validés</small>
+                                    <h4 class="fw-bold mb-0" th:text="${nbPaiementsValides ?: 0}">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="payment-stat-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-box bg-primary-subtle text-primary">
+                                    <i class="bi bi-wallet2"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Revenu total</small>
+                                    <h4 class="fw-bold mb-0"
+                                        th:text="${#numbers.formatDecimal(totalRevenu ?: 0,1,2)} + ' TND'">
+                                        0 TND
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-3">
+                    <a th:href="@{/ui/paiements}" class="btn btn-outline-success action-btn px-4">
+                        <i class="bi bi-list-check me-2"></i>Voir les paiements
+                    </a>
+                    <a th:href="@{/ui/paiements(statut='EN_ATTENTE')}" class="btn btn-success action-btn px-4">
+                        <i class="bi bi-check2-square me-2"></i>Valider les paiements
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-lightning-charge text-warning me-2"></i>Actions rapides
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-wrap gap-3">
+                
+                <a th:href="@{/ui/utilisateurs/new}" class="btn btn-outline-secondary action-btn px-4">Utilisateur</a>
+            </div>
+        </div>
+
+    </div>
+    <!-- ================= FIN ADMIN ================= -->
+
+
+    <!-- ================= FORMATEUR ================= -->
+    <div sec:authorize="hasRole('FORMATEUR')">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="section-title">
+                    <i class="bi bi-person-video3 text-warning me-2"></i>Tableau de bord Formateur
+                </h1>
+                <p class="text-muted mb-0">
+                    Bienvenue,
+                    <span class="fw-semibold" th:text="${utilisateur?.nom ?: 'Formateur'}">Formateur</span> !
+                </p>
+            </div>
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">FORMATEUR</span>
+        </div>
+
+        <!-- Stats formateur -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-primary-subtle text-primary">
+                            <i class="bi bi-collection-play-fill"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Cours disponibles</small>
+                            <h3 class="fw-bold mb-0" th:text="${totalCours ?: 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-success-subtle text-success">
+                            <i class="bi bi-patch-question-fill"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Gérer les quiz</small>
+                            <h3 class="fw-bold mb-0">Quiz</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-info-subtle text-info">
+                            <i class="bi bi-layers-fill"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Gérer les modules</small>
+                            <h3 class="fw-bold mb-0">Modules</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides formateur -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-lightning-charge text-warning me-2"></i>Actions rapides
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-wrap gap-3">
+                <a th:href="@{/ui/cours/new}" class="btn btn-primary action-btn px-4">
+                    <i class="bi bi-plus-lg me-1"></i>Nouveau cours
+                </a>
+                <a th:href="@{/ui/modules/new}" class="btn btn-outline-primary action-btn px-4">
+                    <i class="bi bi-layers me-1"></i>Nouveau module
+                </a>
+                <a th:href="@{/ui/lecons/new}" class="btn btn-outline-primary action-btn px-4">
+                    <i class="bi bi-journal-plus me-1"></i>Nouvelle leçon
+                </a>
+                <a th:href="@{/ui/cours}" class="btn btn-outline-secondary action-btn px-4">
+                    <i class="bi bi-grid me-1"></i>Voir les cours
+                </a>
+            </div>
+        </div>
+
+        <!-- Mes cours -->
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-collection-play text-primary me-2"></i>Catalogue des cours
+                </h5>
+                <a th:href="@{/ui/cours}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Accédez au catalogue pour gérer vos cours, ajouter des modules, leçons et quiz.
+                </p>
+                <a th:href="@{/ui/cours}" class="btn btn-outline-primary action-btn px-4">
+                    <i class="bi bi-arrow-right me-1"></i>Accéder au catalogue
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <!-- ================= FIN FORMATEUR ================= -->
+
+
+    <!-- ================= APPRENANT ================= -->
+    <div sec:authorize="hasRole('APPRENANT')">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="section-title">
+                    <i class="bi bi-mortarboard-fill text-success me-2"></i>Mon espace apprenant
+                </h1>
+                <p class="text-muted mb-0">
+                    Bienvenue,
+                    <span class="fw-semibold" th:text="${utilisateur?.nom ?: 'Apprenant'}">Apprenant</span> !
+                </p>
+            </div>
+            <span class="badge bg-success rounded-pill px-3 py-2">APPRENANT</span>
+        </div>
+
+        <!-- Statistiques apprenant -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-primary-subtle text-primary">
+                            <i class="bi bi-journal-check"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Mes inscriptions</small>
+                            <h3 class="fw-bold mb-0" th:text="${inscriptions != null ? #lists.size(inscriptions) : 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-success-subtle text-success">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Cours terminés</small>
+                            <h3 class="fw-bold mb-0"
+                                th:text="${inscriptions != null ? #lists.size(inscriptions.?[statut.name() == 'TERMINEE']) : 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-box bg-warning-subtle text-warning">
+                            <i class="bi bi-credit-card-2-front"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Mes paiements</small>
+                            <h3 class="fw-bold mb-0" th:text="${mesPaiements != null ? #lists.size(mesPaiements) : 0}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes cours en cours -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-play-circle text-primary me-2"></i>Mes cours
+                </h5>
+                <a th:href="@{/ui/cours}" class="btn btn-sm btn-outline-primary action-btn">
+                    <i class="bi bi-plus me-1"></i>Découvrir plus
+                </a>
+            </div>
+            <div class="card-body">
+
+                <!-- Pas d'inscriptions -->
+                <div th:if="${inscriptions == null or #lists.isEmpty(inscriptions)}"
+                     class="text-center py-4 text-muted">
+                    <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-50"></i>
+                    <p>Vous n'êtes inscrit à aucun cours pour l'instant.</p>
+                    <a th:href="@{/ui/cours}" class="btn btn-primary action-btn px-4">
+                        <i class="bi bi-search me-1"></i>Parcourir le catalogue
+                    </a>
+                </div>
+
+                <!-- Liste des inscriptions -->
+                <div th:if="${inscriptions != null and !#lists.isEmpty(inscriptions)}"
+                     class="row g-3">
+                    <div class="col-md-6" th:each="insc : ${inscriptions}">
+                        <div class="cours-card card p-3">
+                            <div class="d-flex gap-3 align-items-start">
+                                <img th:src="${insc.cours.imageUrl ?: 'https://placehold.co/60x60/4f46e5/fff?text=C'}"
+                                     alt="Cours"
+                                     style="width:60px;height:60px;object-fit:cover;border-radius:10px;flex-shrink:0;"/>
+                                <div class="flex-grow-1 min-width-0">
+                                    <h6 class="fw-bold mb-1 text-truncate" th:text="${insc.cours.titre}">Titre du cours</h6>
+                                    <div class="mb-2">
+                                        <span th:switch="${insc.statut.name()}">
+                                            <span th:case="'ACCEPTEE'" class="badge bg-success-subtle text-success badge-statut">
+                                                <i class="bi bi-check-circle me-1"></i>Acceptée
+                                            </span>
+                                            <span th:case="'EN_ATTENTE'" class="badge bg-warning-subtle text-warning badge-statut">
+                                                <i class="bi bi-hourglass-split me-1"></i>En attente
+                                            </span>
+                                            <span th:case="'TERMINEE'" class="badge bg-primary-subtle text-primary badge-statut">
+                                                <i class="bi bi-award me-1"></i>Terminé
+                                            </span>
+                                            <span th:case="'REFUSEE'" class="badge bg-danger-subtle text-danger badge-statut">
+                                                <i class="bi bi-x-circle me-1"></i>Refusée
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <a th:href="@{/ui/cours/{id}(id=${insc.cours.id})}"
+                                       class="btn btn-sm btn-outline-primary action-btn">
+                                        <i class="bi bi-arrow-right me-1"></i>Accéder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes paiements récents -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-receipt text-success me-2"></i>Mes paiements récents
+                </h5>
+                <a th:href="@{/ui/paiements/mes-paiements}" class="btn btn-sm btn-outline-success action-btn">
+                    Voir tout
+                </a>
+            </div>
+            <div class="card-body">
+
+                <div th:if="${mesPaiements == null or #lists.isEmpty(mesPaiements)}"
+                     class="text-center py-3 text-muted">
+                    <i class="bi bi-credit-card fs-2 d-block mb-2 opacity-50"></i>
+                    <p class="small">Aucun paiement enregistré.</p>
+                </div>
+
+                <div th:if="${mesPaiements != null and !#lists.isEmpty(mesPaiements)}">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Cours</th>
+                                <th>Montant</th>
+                                <th>Méthode</th>
+                                <th>Statut</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p, iter : ${mesPaiements}" th:if="${iter.index < 5}">
+                                <td class="fw-semibold small" th:text="${p.cours.titre}">Cours</td>
+                                <td class="fw-bold text-primary"
+                                    th:text="${#numbers.formatDecimal(p.montant,1,2)} + ' TND'">0 TND</td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill small"
+                                          th:text="${p.methode?.name()?.replace('_',' ') ?: '-'}">-</span>
+                                </td>
+                                <td>
+                                    <span th:switch="${p.statut.name()}">
+                                        <span th:case="'VALIDE'" class="badge bg-success rounded-pill">Validé</span>
+                                        <span th:case="'EN_ATTENTE'" class="badge bg-warning text-dark rounded-pill">En attente</span>
+                                        <span th:case="'REFUSE'" class="badge bg-danger rounded-pill">Refusé</span>
+                                        <span th:case="'REMBOURSE'" class="badge bg-info rounded-pill">Remboursé</span>
+                                    </span>
+                                </td>
+                                <td class="small text-muted"
+                                    th:text="${#temporals.format(p.dateCreation,'dd/MM/yyyy')}">-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides apprenant -->
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-lightning-charge text-warning me-2"></i>Actions rapides
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-wrap gap-3">
+                <a th:href="@{/ui/cours}" class="btn btn-primary action-btn px-4">
+                    <i class="bi bi-search me-1"></i>Catalogue des cours
+                </a>
+                <a th:href="@{/ui/paiements/mes-paiements}" class="btn btn-outline-success action-btn px-4">
+                    <i class="bi bi-receipt me-1"></i>Mes paiements
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <!-- ================= FIN APPRENANT ================= -->
+
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+
+</body>
+</html>

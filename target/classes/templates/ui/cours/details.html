@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${cours.titre}">Cours</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Hero section */
+        .hero-section {
+            animation: fadeInUp 0.8s ease-out;
+            background: linear-gradient(135deg, #1e293b 0%, #312e81 100%);
+            color: white;
+            padding: 3rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .breadcrumb {
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .hero-badges {
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .hero-title {
+            animation: slideInLeft 0.8s ease-out 0.2s both;
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-description {
+            animation: slideInRight 0.8s ease-out 0.3s both;
+        }
+
+        .hero-meta {
+            animation: slideDown 0.8s ease-out 0.4s both;
+        }
+
+        .hero-image {
+            animation: scaleIn 0.8s ease-out 0.3s both;
+        }
+
+        /* Progress section */
+        .progress-section {
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+        }
+
+        .progress-bar {
+            transition: all 0.6s ease;
+            animation: slideInLeft 0.8s ease-out 0.6s both;
+        }
+
+        /* Content section */
+        .content-section {
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .section-title {
+            animation: slideInLeft 0.6s ease-out 0.7s both;
+        }
+
+        /* Accordion */
+        .accordion-item {
+            animation: fadeInUp 0.8s ease-out backwards;
+            border-radius: 12px !important;
+            margin-bottom: 12px;
+            border: none !important;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .accordion-item:nth-child(1) { animation-delay: 0.7s; }
+        .accordion-item:nth-child(2) { animation-delay: 0.8s; }
+        .accordion-item:nth-child(3) { animation-delay: 0.9s; }
+        .accordion-item:nth-child(n+4) { animation-delay: 1s; }
+
+        .accordion-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
+        }
+
+        .accordion-button {
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .accordion-button:hover {
+            background: rgba(79, 70, 229, 0.05);
+            color: var(--primary);
+        }
+
+        .accordion-button:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Lesson items */
+        .list-group-item {
+            animation: slideDown 0.4s ease-out backwards;
+            transition: all 0.3s ease;
+            border: none;
+            padding: 1rem;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8fafc;
+            transform: translateX(4px);
+        }
+
+        /* Sidebar card */
+        .sidebar-card {
+            animation: slideInRight 0.8s ease-out 0.5s both;
+            border-radius: 12px;
+            border: none;
+            transition: all 0.4s ease;
+        }
+
+        .sidebar-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Button animations */
+        .btn {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Rating section */
+        .rating-section {
+            animation: fadeInUp 0.8s ease-out 1.2s both;
+        }
+
+        .rating-card {
+            animation: scaleIn 0.6s ease-out 1.3s both;
+            border-radius: 12px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .rating-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .avis-card {
+            animation: fadeInUp 0.8s ease-out backwards;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .avis-card:hover {
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.1);
+        }
+
+        .avis-card:nth-child(1) { animation-delay: 1.4s; }
+        .avis-card:nth-child(2) { animation-delay: 1.5s; }
+        .avis-card:nth-child(3) { animation-delay: 1.6s; }
+
+        /* Icon animations */
+        .icon-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .icon-float:hover {
+            animation: float 1.5s ease-in-out infinite;
+        }
+
+        /* Stars */
+        .star {
+            transition: all 0.2s ease;
+        }
+
+        .form-star:hover {
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 1.75rem; }
+            .sidebar-card { position: static; }
+            .accordion-item:hover { transform: translateY(-2px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="flex-grow-1">
+    <!-- Hero Section -->
+    <div class="hero-section position-relative">
+        <div class="container position-relative z-1">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb mb-0" style="--bs-breadcrumb-divider-color:rgba(255,255,255,0.4);">
+                    <li class="breadcrumb-item"><a th:href="@{/ui/cours}" class="text-white-50 text-decoration-none small">Catalogue</a></li>
+                    <li class="breadcrumb-item active text-white small" th:text="${cours.titre}">Cours</li>
+                </ol>
+            </nav>
+
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <div class="hero-badges d-flex gap-2 mb-3">
+                        <span class="badge text-bg-primary rounded-pill" th:text="${cours.niveau}">NIVEAU</span>
+                        <span class="badge rounded-pill" style="background:rgba(255,255,255,0.15);" th:text="${cours.categorie ?: 'Général'}">Cat</span>
+                    </div>
+                    <h1 class="hero-title fw-bold mb-3" th:text="${cours.titre}">Titre</h1>
+                    <p class="hero-description mb-4" style="color:rgba(255,255,255,0.8);max-width:600px;" th:text="${cours.description}">Desc</p>
+                    <div class="hero-meta d-flex flex-wrap align-items-center gap-4 small" style="color:rgba(255,255,255,0.7);">
+                        <span><i class="bi bi-person-video me-1"></i><span th:text="${cours.formateur != null ? cours.formateur.nom : '—'}">Formateur</span></span>
+                        <span><i class="bi bi-layers me-1"></i><span>Contenu complet</span></span>
+                        <span th:if="${noteAvg > 0}">
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <span th:text="${#numbers.formatDecimal(noteAvg,1,1)}">4.5</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <img th:if="${cours.imageUrl != null}" th:src="${cours.imageUrl}" class="hero-image img-fluid rounded-3 shadow" style="max-height:220px;width:100%;object-fit:cover;" alt="Cours"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row g-4">
+            <!-- Content Column -->
+            <div class="col-lg-8">
+                <!-- Progress Bar -->
+                <div class="progress-section card shadow-sm mb-4" th:if="${inscrit}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold small">Votre progression</span>
+                            <span class="fw-bold text-primary" th:text="${#numbers.formatDecimal(progression,1,0)} + '%'">0%</span>
+                        </div>
+                        <div class="progress" style="height:10px;">
+                            <div class="progress-bar" th:style="|width:${progression}%|" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Title -->
+                <h2 class="section-title h5 fw-bold mb-3"><i class="bi bi-layers me-2 text-primary"></i>Contenu du cours</h2>
+
+                <!-- Accordion Modules -->
+                <div class="accordion" id="accordionModules" th:if="${modules != null && !modules.isEmpty()}">
+                    <div class="accordion-item" th:each="mod, iterStat : ${modules}">
+                        <h2 class="accordion-header" th:id="|heading-${mod.id}|">
+                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse"
+                                    th:classappend="${iterStat.index != 0} ? 'collapsed'"
+                                    th:data-bs-target="|#collapse-mod-${mod.id}|"
+                                    th:aria-expanded="${iterStat.index == 0}"
+                                    th:aria-controls="|collapse-mod-${mod.id}|">
+                                <i class="bi bi-collection me-2 text-primary"></i><span th:text="${mod.titre}">Module</span>
+                            </button>
+                        </h2>
+                        <div th:id="|collapse-mod-${mod.id}|" class="accordion-collapse collapse"
+                             th:classappend="${iterStat.index == 0} ? 'show'"
+                             data-bs-parent="#accordionModules">
+                            <div class="accordion-body p-0">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2"
+                                        th:each="lecon : ${mod.lecons}">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;">
+                                                <i class="bi bi-file-earmark-play text-primary" style="font-size:0.8rem;"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium small" th:text="${lecon.titre}">Leçon</div>
+                                                <div class="text-muted" style="font-size:0.75rem;" th:text="|${lecon.dureeMin} min|">15 min</div>
+                                            </div>
+                                        </div>
+                                        <th:block th:if="${inscrit}">
+                                            <span th:if="${completedLeconIds.contains(lecon.id)}" class="badge bg-success">Terminé</span>
+                                            <form th:if="${!completedLeconIds.contains(lecon.id)}"
+                                                  th:action="@{/ui/certificat/mark-complete/{aid}/{lid}(aid=${utilisateur.id},lid=${lecon.id},coursId=${cours.id})}"
+                                                  method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-check2-circle me-1"></i>Terminer
+                                                </button>
+                                            </form>
+                                        </th:block>
+                                    </li>
+                                    <li class="list-group-item px-4 py-3 bg-light" th:if="${mod.quiz != null}">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;background:#fef9c3;">
+                                                    <i class="bi bi-patch-question text-warning" style="font-size:0.85rem;"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold small">Quiz du module</div>
+                                                    <div class="text-muted" style="font-size:0.75rem;"
+                                                         th:text="${mod.quiz.questions != null ? #lists.size(mod.quiz.questions) + ' questions' : 'Quiz'}">10 questions</div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <a th:href="@{/ui/quiz/{qid}(qid=${mod.quiz.id})}" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-play-fill me-1"></i>Passer
+                                                </a>
+                                                <th:block th:if="${quizResults != null && quizResults.containsKey(mod.quiz.id)}"
+                                                          th:with="qr=${quizResults.get(mod.quiz.id)}">
+                                                    <span class="badge bg-secondary"
+                                                          th:text="|Dernier score : ${qr.score}/${qr.totalQuestions}|">0/0</span>
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted" th:if="${modules == null || modules.isEmpty()}">Aucun module pour ce cours.</p>
+
+                <!-- Reviews Section -->
+                <div id="avis" class="rating-section mt-5">
+                    <h2 class="h5 fw-bold mb-4"><i class="bi bi-star me-2 text-warning"></i>Avis et évaluations</h2>
+
+                    <!-- Average Rating -->
+                    <div class="rating-card card shadow-sm mb-4">
+                        <div class="card-body d-flex align-items-center gap-4 py-3">
+                            <div class="text-center">
+                                <div class="display-5 fw-bold text-primary"
+                                     th:text="${noteAvg > 0 ? #numbers.formatDecimal(noteAvg,1,1) : '—'}">4.5</div>
+                                <div class="small text-muted">/ 5</div>
+                            </div>
+                            <div>
+                                <div class="small text-muted">
+                                    <span th:text="${avis != null ? avis.size() : 0}">0</span> avis
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave a review -->
+                    <div class="card shadow-sm mb-4" th:if="${inscrit}">
+                        <div class="card-header"><i class="bi bi-pencil me-1"></i>Laisser un avis</div>
+                        <div class="card-body">
+                            <form th:action="@{/ui/cours/{id}/avis(id=${cours.id})}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Votre note</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <label class="form-check-label small" th:each="n : ${#numbers.sequence(1, 5)}">
+                                            <input type="radio" class="form-check-input form-star me-1" name="note"
+                                                   th:value="${n}" required
+                                                   th:checked="${monAvis != null && monAvis.note == n}"/>
+                                            <span th:text="${n}">1</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Commentaire</label>
+                                    <textarea class="form-control" name="commentaire" rows="3"
+                                              placeholder="Partagez votre expérience..."
+                                              th:inline="text">[[${monAvis?.commentaire}]]</textarea>
+                                </div>
+                                <button class="btn btn-warning btn-sm px-4" type="submit">
+                                    <i class="bi bi-send me-1"></i>Publier mon avis
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="vstack gap-3">
+                        <div class="avis-card card shadow-sm" th:each="a : ${avis}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="fw-semibold small" th:text="${a.utilisateur != null ? a.utilisateur.nom : '—'}">Nom</div>
+                                    <div class="small text-muted" th:text="${a.note} + '/5'">5/5</div>
+                                </div>
+                                <p class="text-muted small mb-0" th:text="${a.commentaire}">Commentaire</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="sidebar-card card shadow-sm sticky-top" style="top:80px;">
+                    <div class="card-body p-4">
+                        <h3 class="h6 fw-bold mb-1">Rejoindre ce cours</h3>
+                        <p class="text-muted small mb-4">Accédez au contenu complet et suivez votre progression.</p>
+
+                        <div th:if="${inscrit}" class="alert alert-success py-2 small mb-3">
+                            Vous êtes inscrit à ce cours.
+                        </div>
+
+                        <form th:if="${!inscrit && cours.gratuit}" th:action="@{/ui/cours/{id}/inscrire(id=${cours.id})}" method="post">
+                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                                <i class="bi bi-person-plus me-1"></i>S'inscrire gratuitement
+                            </button>
+                        </form>
+                        <a th:if="${!inscrit && !cours.gratuit}"
+                           th:href="@{/ui/paiements/cours/{id}(id=${cours.id})}"
+                           class="btn btn-primary w-100 py-2 mb-3">
+                            <i class="bi bi-credit-card me-1"></i>Payer et s'inscrire
+                        </a>
+
+                        <a sec:authorize="hasAnyRole('ADMIN','FORMATEUR')"
+                           th:href="@{/ui/cours/{id}/edit(id=${cours.id})}"
+                           class="btn btn-outline-secondary btn-sm w-100 mb-3">
+                            <i class="bi bi-pencil me-1"></i>Modifier le cours
+                        </a>
+
+                        <hr class="my-3"/>
+                        <div class="vstack gap-2">
+                            <div class="d-flex align-items-center gap-2 small">
+                                <i class="bi bi-layers text-primary"></i>
+                                <span th:text="|${#lists.size(modules)} modules|">3 modules</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 small">
+                                <i class="bi bi-clock text-primary"></i>
+                                <span th:text="${cours.dureeHeures != null ? cours.dureeHeures + ' heures' : '—'}">15 heures</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 small">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <span th:text="${noteAvg > 0 ? #numbers.formatDecimal(noteAvg,1,1) + '/5 (' + avis.size() + ' avis)' : 'Pas encore noté'}">4.5/5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+<script>
+    // Star rating
+    document.querySelectorAll('.form-star').forEach(star => {
+        star.addEventListener('change', function() {
+            document.querySelectorAll('.form-star').forEach(s => s.style.color = '');
+            for (let i = 0; i < this.value; i++) {
+                document.querySelectorAll('.form-star')[i].style.color = '#f59e0b';
+            }
+        });
+    });
+</script>
+</body>
+</html>

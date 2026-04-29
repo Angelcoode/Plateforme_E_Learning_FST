@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Résultat Quiz')}">
+    <style>
+        /* ── Keyframes ─────────────────────────────────────────────── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-5px); }
+        }
+        @keyframes confetti {
+            0%   { transform: translateY(0) rotate(0deg);   opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ── Animation utility classes ──────────────────────────────
+           FIX : les classes animate-* ne cachent plus l'élément par défaut ;
+           l'animation elle-même part de opacity:0 via ses keyframes,
+           ce qui évite le conflit avec l'IntersectionObserver JS.        */
+        .animate-fadeInUp  { animation: fadeInUp  0.6s ease-out both; }
+        .animate-scaleIn   { animation: scaleIn   0.5s ease-out both; }
+        .animate-slideInLeft  { animation: slideInLeft  0.5s ease-out both; }
+        .animate-slideInRight { animation: slideInRight 0.5s ease-out both; }
+
+        /* FIX : les delay-* n'écrasent plus opacity:0 sur l'élément ;
+           animation-fill-mode: both (via la classe animate-*) suffit. */
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* ── Confetti ───────────────────────────────────────────────── */
+        .confetti-container {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px; height: 10px;
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            animation: confetti 3s ease-out forwards;
+        }
+
+        /* ── Hover / interaction ────────────────────────────────────── */
+        .btn-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+        .btn-hover-effect::before {
+            content: '';
+            position: absolute; top: 50%; left: 50%;
+            width: 0; height: 0; border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-hover-effect:hover::before { width: 300px; height: 300px; }
+
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+        }
+        .score-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ── Answer items ───────────────────────────────────────────── */
+        /* FIX : les items commencent visibles ; le JS les anime ensuite.
+           On évite ainsi un flash invisible si JS est lent. */
+        .answer-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease,
+                        opacity 0.5s ease;
+        }
+        .answer-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* ── Progress bar ───────────────────────────────────────────── */
+        .progress-animated { transition: width 1.5s ease-out; }
+
+        /* ── Icon bounce ────────────────────────────────────────────── */
+        .icon-bounce { animation: bounce 1s ease infinite; }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1" style="max-width:640px;">
+    <div class="card shadow-lg text-center p-5 border-0 animate-fadeInUp card-hover">
+
+        <!-- Confetti (succès uniquement) -->
+        <div th:if="${pct >= 70}" id="confettiContainer" class="confetti-container"></div>
+
+        <!-- Bannière succès -->
+        <div th:if="${pct >= 70}" class="animate-scaleIn">
+            <div class="mb-3" style="font-size:4rem;">
+                <i class="bi bi-trophy-fill text-warning icon-bounce"></i>
+            </div>
+            <h1 class="h3 fw-bold text-success mb-1">Félicitations ! 🎉</h1>
+            <p class="text-muted mb-4">Vous avez réussi ce quiz avec succès.</p>
+        </div>
+
+        <!-- Bannière échec -->
+        <div th:if="${pct < 70}" class="animate-scaleIn delay-1">
+            <div class="mb-3" style="font-size:4rem;">
+                <i class="bi bi-journal-bookmark-fill text-danger"></i>
+            </div>
+            <h1 class="h3 fw-bold text-danger mb-1">À améliorer 📚</h1>
+            <p class="text-muted mb-4">Relisez les leçons et réessayez.</p>
+        </div>
+
+        <!-- Cercle de score -->
+        <div class="d-flex align-items-center justify-content-center mb-4 animate-scaleIn delay-2">
+            <div class="rounded-circle d-flex align-items-center justify-content-center shadow-lg score-circle"
+                 th:style="'width:160px;height:160px;background:'
+                     + (${pct >= 70} ? 'linear-gradient(135deg,#dcfce7,#bbf7d0)'
+                                     : 'linear-gradient(135deg,#fee2e2,#fecdd3)')
+                     + ';border:4px solid '
+                     + (${pct >= 70} ? '#10b981' : '#ef4444') + ';'">
+                <div>
+                    <div class="fw-bold"
+                         th:style="'font-size:2.5rem;color:' + (${pct >= 70} ? '#10b981' : '#ef4444') + ';'"
+                         th:text="${pct} + '%'">0%
+                    </div>
+                    <div class="small text-muted"
+                         th:text="${result.score} + '/' + ${result.totalQuestions}">0/0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barre de progression -->
+        <div class="mb-4 animate-slideInLeft delay-2">
+            <div class="d-flex justify-content-between mb-2">
+                <small class="text-muted">Progression</small>
+                <small class="text-muted fw-bold" th:text="${pct} + '%'">0%</small>
+            </div>
+            <div class="progress rounded-pill" style="height:10px;background-color:#e9ecef;">
+                <!-- FIX : width initialisée à 0 en inline ; le JS l'anime vers la vraie valeur -->
+                <div id="progressBar"
+                     class="progress-bar rounded-pill"
+                     th:class="${pct >= 70} ? 'progress-bar rounded-pill bg-success'
+                                           : 'progress-bar rounded-pill bg-danger'"
+                     style="width:0%"
+                     th:attr="data-target=${pct},
+                              aria-valuenow=${pct},
+                              aria-valuemin=0,
+                              aria-valuemax=100">
+                </div>
+            </div>
+        </div>
+
+        <!-- Détail des réponses -->
+        <div class="text-start mb-4 animate-fadeInUp delay-3"
+             th:if="${result.reponses != null and not #lists.isEmpty(result.reponses)}">
+            <h2 class="h6 fw-bold mb-3">
+                <i class="bi bi-list-check me-2"></i>Détail des réponses
+            </h2>
+            <div class="vstack gap-3">
+                <div class="d-flex align-items-start gap-3 p-3 rounded-3 answer-item"
+                     th:each="r, iterStat : ${result.reponses}"
+                     th:style="${r.correcte}
+                         ? 'background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;'
+                         : 'background:linear-gradient(135deg,#fff1f2,#ffe4e6);border:1px solid #fecdd3;'"
+                     th:attr="data-index=${iterStat.index}">
+
+                    <div class="flex-shrink-0 mt-1">
+                        <i th:class="${r.correcte}
+                                ? 'bi bi-check-circle-fill text-success fs-5'
+                                : 'bi bi-x-circle-fill text-danger fs-5'"></i>
+                    </div>
+                    <div class="small flex-grow-1">
+                        <div class="fw-medium mb-2" th:text="${r.question.text}">Question</div>
+                        <div class="mb-1">
+                            <span class="text-muted">Votre réponse :</span>
+                            <strong th:text="${r.reponseChoisie}"
+                                    th:class="${r.correcte} ? 'text-success' : 'text-danger'">A</strong>
+                        </div>
+                        <div th:if="${not r.correcte}" class="mt-2 p-2 rounded bg-white bg-opacity-50">
+                            <span class="text-success">
+                                <i class="bi bi-lightbulb me-1"></i>
+                                Bonne réponse :
+                                <strong th:text="${r.question.correctAnswer}">A</strong>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="badge rounded-pill"
+                              th:class="${r.correcte}
+                                  ? 'bg-success bg-opacity-25 text-success'
+                                  : 'bg-danger bg-opacity-25 text-danger'">
+                            <i th:class="${r.correcte} ? 'bi bi-star-fill' : 'bi bi-emoji-frown'"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques résumées -->
+        <div class="row g-3 mb-4 animate-slideInRight delay-3">
+            <div class="col-6">
+                <div class="p-3 rounded-3 text-center"
+                     style="background:linear-gradient(135deg,#e8f4f8,#d1ecf1);">
+                    <i class="bi bi-check2-circle text-success fs-4"></i>
+                    <div class="fw-bold mt-2" th:text="${result.score}">0</div>
+                    <small class="text-muted">Bonnes réponses</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-3 rounded-3 text-center"
+                     style="background:linear-gradient(135deg,#f8e8e8,#f1d1d1);">
+                    <i class="bi bi-x-circle text-danger fs-4"></i>
+                    <div class="fw-bold mt-2"
+                         th:text="${result.totalQuestions - result.score}">0</div>
+                    <small class="text-muted">Mauvaises réponses</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="d-flex gap-3 justify-content-center flex-wrap animate-fadeInUp delay-4">
+            <a th:href="@{/ui/quiz/{id}(id=${quiz.id})}"
+               class="btn btn-outline-primary btn-lg px-4 rounded-pill btn-hover-effect">
+                <i class="bi bi-arrow-repeat me-2"></i>Repasser le quiz
+            </a>
+            <a th:if="${quiz.module != null and quiz.module.cours != null}"
+               th:href="@{/ui/cours/{id}(id=${quiz.module.cours.id})}"
+               class="btn btn-primary btn-lg px-4 rounded-pill btn-hover-effect shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i>Retour au cours
+            </a>
+        </div>
+
+        <!-- Partage -->
+        <div class="mt-4 pt-3 border-top animate-fadeInUp delay-4">
+            <p class="text-muted small mb-2">Partagez votre résultat</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary rounded-circle"
+                        style="width:36px;height:36px;"
+                        onclick="shareResult('twitter')">
+                    <i class="bi bi-twitter-x"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary rounded-circle"
+                        style="width:36px;height:36px;"
+                        onclick="shareResult('linkedin')">
+                    <i class="bi bi-linkedin"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary rounded-circle"
+                        style="width:36px;height:36px;"
+                        onclick="shareResult('facebook')">
+                    <i class="bi bi-facebook"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* ── 1. Barre de progression ──────────────────────────────────────
+       FIX : la valeur cible est lue depuis data-target ; le width part
+       de 0 % (défini en HTML) et est animé après un court délai.       */
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        const target = progressBar.getAttribute('data-target') || '0';
+        setTimeout(() => {
+            progressBar.style.width = target + '%';
+        }, 300);
+    }
+
+    /* ── 2. Animation des items de réponse ───────────────────────────
+       FIX : on cache puis révèle chaque item via JS directement,
+       sans IntersectionObserver (évite le double-reset d'opacité).     */
+    const answerItems = document.querySelectorAll('.answer-item');
+    answerItems.forEach((item) => {
+        const index = parseInt(item.getAttribute('data-index') || '0', 10);
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-20px)';
+        setTimeout(() => {
+            item.style.opacity  = '1';
+            item.style.transform = 'translateX(0)';
+        }, 300 + index * 120);
+    });
+
+    /* ── 3. Confetti ─────────────────────────────────────────────────── */
+    if (document.getElementById('confettiContainer')) {
+        createConfetti();
+    }
+
+    /* ── 4. Click sur le cercle de score ─────────────────────────────── */
+    const scoreCircle = document.querySelector('.score-circle');
+    if (scoreCircle) {
+        scoreCircle.addEventListener('click', function () {
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => { this.style.transform = 'scale(1)'; }, 300);
+        });
+    }
+
+    /* FIX : suppression de l'IntersectionObserver qui remettait opacity:0
+       sur les éléments animate-* déjà gérés par leurs keyframes CSS.   */
+});
+
+/* ── Confetti ──────────────────────────────────────────────────────────── */
+function createConfetti() {
+    const container = document.getElementById('confettiContainer');
+    if (!container) return;
+    const colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#00d2d3'];
+    for (let i = 0; i < 100; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.classList.add('confetti');
+            el.style.left              = Math.random() * 100 + '%';
+            el.style.width             = (Math.random() * 10 + 5) + 'px';
+            el.style.height            = (Math.random() * 10 + 5) + 'px';
+            el.style.backgroundColor   = colors[Math.floor(Math.random() * colors.length)];
+            el.style.animationDelay    = Math.random() * 2 + 's';
+            el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }, i * 50);
+    }
+}
+
+/* ── Partage ───────────────────────────────────────────────────────────── */
+function shareResult(platform) {
+    /* FIX : sélecteur plus robuste — on lit directement la valeur du
+       pourcentage depuis la barre de progression plutôt que de deviner
+       la couleur du texte (qui change selon succès/échec).              */
+    const progressBar = document.getElementById('progressBar');
+    const score = progressBar ? progressBar.getAttribute('data-target') + '%' : '?';
+    const text  = `J'ai obtenu ${score} à mon quiz ! 🎯`;
+    const url   = window.location.href;
+
+    const urls = {
+        twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+        linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+    };
+
+    if (urls[platform]) {
+        window.open(urls[platform], '_blank', 'width=600,height=400');
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head(${utilisateur.id != null ? 'Modifier utilisateur' : 'Nouvel utilisateur'})}"></head>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #f5f7fa, #e9eff7);
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animated-page {
+    animation: fadeUp 0.7s ease-in-out;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  .modern-card {
+    border: none;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    animation: fadeUp 0.8s ease;
+  }
+
+  .form-control, .form-select {
+    border-radius: 12px;
+    border: 1px solid #d6dce5;
+    padding: 12px 14px;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37,99,235,0.15);
+    transform: scale(1.01);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .btn-primary {
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 6px 16px rgba(37,99,235,0.25);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover,
+  .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-secondary {
+    border-radius: 12px;
+  }
+
+  .btn-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1 animated-page" style="max-width:640px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="@{/ui/utilisateurs}" class="btn btn-sm btn-outline-secondary btn-icon">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="page-title"
+        th:text="${utilisateur.id != null ? 'Modifier l''utilisateur' : 'Nouvel utilisateur'}">
+      Utilisateur
+    </h1>
+  </div>
+
+  <div class="card modern-card">
+    <div class="card-body p-4">
+      <form th:object="${utilisateur}"
+            th:action="${utilisateur.id != null ? '/ui/utilisateurs/' + utilisateur.id : '/ui/utilisateurs'}"
+            method="post"
+            class="row g-3">
+
+        <div class="col-12">
+          <label class="form-label">Nom <span class="text-danger">*</span></label>
+          <input class="form-control" th:field="*{nom}" required placeholder="Nom complet"/>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Email <span class="text-danger">*</span></label>
+          <input class="form-control" type="email" th:field="*{email}" required placeholder="email@fst.ma"/>
+        </div>
+
+        <div class="col-6">
+          <label class="form-label">
+            Mot de passe
+            <span th:if="${utilisateur.id == null}" class="text-danger">*</span>
+          </label>
+          <input class="form-control" type="password" th:field="*{password}"
+                 th:required="${utilisateur.id == null}"
+                 placeholder="Laissez vide pour conserver"/>
+        </div>
+
+        <div class="col-6">
+          <label class="form-label">Rôle <span class="text-danger">*</span></label>
+          <select class="form-select" th:field="*{role}" required>
+            <option th:each="r : ${roles}" th:value="${r}" th:text="${r}">ROLE</option>
+          </select>
+        </div>
+
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button class="btn btn-primary px-4" type="submit">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+          <a th:href="@{/ui/utilisateurs}" class="btn btn-outline-secondary px-4">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+
+</body>
+</html>

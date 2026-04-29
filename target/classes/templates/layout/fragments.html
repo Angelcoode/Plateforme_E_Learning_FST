@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="${title} + ' | E-Learning FST'">E-Learning FST</title>
+  
+  <!-- Favicon - Solution avec emoji 🎓 -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234f46e5'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E🎓%3C/text%3E%3C/svg%3E">
+  
+  <!-- Favicon de fallback pour les navigateurs qui ne supportent pas SVG -->
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/48/000000/education--v1.png">
+  
+  <!-- Apple Touch Icon pour iOS -->
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/48/000000/education--v1.png">
+  
+  <!-- Bootstrap & Fonts -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Application CSS -->
+  <link th:href="@{/css/app.css}" rel="stylesheet"/>
+  
+  <!-- Animation personnalisée pour la navbar -->
+  <style>
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .navbar {
+      animation: slideDown 0.5s ease-out;
+    }
+    
+    /* Effet de hover sur les liens de navigation */
+    .navbar-nav .nav-link {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .navbar-nav .nav-link:hover {
+      transform: translateX(3px);
+      color: #0d6efd !important;
+    }
+    
+    /* Indicateur de page active */
+    .navbar-nav .nav-link.active {
+      color: #0d6efd !important;
+      border-bottom: 2px solid #0d6efd;
+    }
+    
+    /* Animation des dropdowns */
+    .dropdown-menu {
+      animation: fadeIn 0.3s ease-out;
+      transform-origin: top;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Bouton de connexion/déconnexion */
+    .btn-outline-light {
+      transition: all 0.3s ease;
+    }
+    
+    .btn-outline-light:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Animation du footer */
+    footer {
+      transition: all 0.3s ease;
+    }
+    
+    footer a {
+      transition: all 0.3s ease;
+    }
+    
+    footer a:hover {
+      color: #0d6efd !important;
+      transform: translateX(3px);
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" style="background:#1e293b;">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/home}">
+      <div class="d-flex align-items-center justify-content-center rounded-2 bg-primary" style="width:32px;height:32px;">
+        <i class="bi bi-mortarboard-fill text-white" style="font-size:1rem;"></i>
+      </div>
+      <span>E-Learning <span class="text-primary">FST</span></span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-2">
+
+  <li class="nav-item">
+    <a class="nav-link px-2" th:href="@{/dashboard}" id="navDashboard">
+      <i class="bi bi-house me-1"></i>Dashboard
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link px-2" th:href="@{/ui/cours}" id="navCatalogue">
+      <i class="bi bi-collection-play me-1"></i>Catalogue
+    </a>
+  </li>
+
+  <li class="nav-item" sec:authorize="hasRole('APPRENANT')">
+    <a class="nav-link px-2" th:href="@{/ui/paiements/mes-paiements}" id="navPaiements">
+      <i class="bi bi-receipt me-1"></i>Mes paiements
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link px-2" th:href="@{/ui/inscriptions}" id="navInscriptions">
+      <i class="bi bi-person-check me-1"></i>Inscriptions
+    </a>
+  </li>
+
+  <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+    <a class="nav-link px-2" th:href="@{/ui/utilisateurs}" id="navUtilisateurs">
+      <i class="bi bi-people me-1"></i>Utilisateurs
+    </a>
+  </li>
+
+</ul>
+
+      <!-- Right side: user info + logout -->
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <div class="d-flex align-items-center gap-2" sec:authorize="isAuthenticated()">
+          <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width:30px;height:30px;">
+            <i class="bi bi-person-fill text-white" style="font-size:0.8rem;"></i>
+          </div>
+          <span class="text-white small fw-medium d-none d-lg-inline"
+                sec:authentication="name">user</span>
+        </div>
+        <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="m-0">
+          <button class="btn btn-sm btn-outline-light rounded-pill px-3" type="submit">
+            <i class="bi bi-box-arrow-right me-1"></i>Quitter
+          </button>
+        </form>
+        <div sec:authorize="!isAuthenticated()" class="d-flex gap-2">
+          <a class="btn btn-outline-light btn-sm rounded-pill px-3" th:href="@{/login}">Connexion</a>
+          <a class="btn btn-primary btn-sm rounded-pill px-3" th:href="@{/register}">S'inscrire</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<footer th:fragment="footer" style="background:#1e293b;color:#94a3b8;"
+        class="mt-auto py-4 border-top border-secondary border-opacity-25">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-mortarboard-fill text-primary"></i>
+          <span class="fw-semibold text-white small">E-Learning FST</span>
+        </div>
+        <p class="small mb-0">Plateforme d'apprentissage en ligne — Université de Tunis El Manar</p>
+        <p class="small mt-2 mb-0">
+          <i class="bi bi-envelope me-1"></i> contact@fst.utm.tn
+        </p>
+      </div>
+      <div class="col-md-4">
+        <div class="fw-semibold text-white small mb-2">Navigation</div>
+        <ul class="list-unstyled small">
+          <li><a th:href="@{/home}" class="text-secondary text-decoration-none">Accueil</a></li>
+          <li><a th:href="@{/register}" class="text-secondary text-decoration-none">S'inscrire</a></li>
+          <li><a th:href="@{/ui/cours}" class="text-secondary text-decoration-none">Catalogue</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div class="small">&copy; 2026 E-Learning FST</div>
+        <div class="small mt-1 text-secondary">Spring Boot 3 · Thymeleaf · Bootstrap 5</div>
+        <div class="mt-2">
+          <a href="https://www.facebook.com/universite.tunis.elmanar" target="_blank" rel="noopener noreferrer" class="text-secondary me-2"><i class="bi bi-facebook"></i></a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="text-secondary me-2"><i class="bi bi-twitter-x"></i></a>
+          <a href="https://www.linkedin.com/school/universite-de-tunis-el-manar/" target="_blank" rel="noopener noreferrer" class="text-secondary"><i class="bi bi-linkedin"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Annonce promotionnelle (3 slides / 6s / loop) -->
+<section th:fragment="promoAnnouncement" class="py-4 py-lg-5" style="background: linear-gradient(180deg, #0b1020 0%, #0f172a 100%);">
+  <div class="container">
+    <div id="promoAnnouncementCarousel" class="carousel slide carousel-fade rounded-4 overflow-hidden shadow-lg"
+         data-bs-ride="carousel" data-bs-interval="6000" data-bs-pause="false" data-bs-touch="true">
+      <div class="carousel-indicators mb-0">
+        <button type="button" data-bs-target="#promoAnnouncementCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#promoAnnouncementCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#promoAnnouncementCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+      </div>
+
+      <div class="carousel-inner">
+        <!-- Slide 1 -->
+        <div class="carousel-item active">
+          <div class="promo-slide position-relative">
+            <img class="d-block w-100 promo-bg"
+                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
+                 alt="Étudiant stressé - apprentissage difficile">
+            <div class="promo-overlay promo-overlay-dark"></div>
+            <div class="promo-content">
+              <div class="promo-badge">
+                <i class="bi bi-moon-stars-fill me-2"></i>Apprentissage moderne
+              </div>
+              <h2 class="promo-title">
+                Fatigué des méthodes d’apprentissage traditionnelles ?
+              </h2>
+              <p class="promo-subtitle">
+                Passez à une expérience plus claire, plus guidée et plus motivante.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel-item">
+          <div class="promo-slide position-relative">
+            <img class="d-block w-100 promo-bg"
+                 src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80"
+                 alt="Dashboard e-learning - cours en ligne">
+            <div class="promo-overlay promo-overlay-green"></div>
+            <div class="promo-content">
+              <div class="promo-badge promo-badge-success">
+                <i class="bi bi-lightning-charge-fill me-2"></i>Interactif & engageant
+              </div>
+              <h2 class="promo-title">
+                Apprenez autrement avec notre plateforme e-learning interactive
+              </h2>
+              <div class="promo-features">
+                <div class="promo-feature">
+                  <i class="bi bi-play-btn-fill"></i><span>Vidéos</span>
+                </div>
+                <div class="promo-feature">
+                  <i class="bi bi-ui-checks-grid"></i><span>Quiz</span>
+                </div>
+                <div class="promo-feature">
+                  <i class="bi bi-graph-up-arrow"></i><span>Progression</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel-item">
+          <div class="promo-slide position-relative">
+            <img class="d-block w-100 promo-bg"
+                 src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80"
+                 alt="Étudiants heureux - réussite - diplôme">
+            <div class="promo-overlay promo-overlay-yellow"></div>
+            <div class="promo-content">
+              <div class="promo-badge promo-badge-warning">
+                <i class="bi bi-award-fill me-2"></i>Objectif réussite
+              </div>
+              <h2 class="promo-title">
+                Rejoignez-nous et construisez votre avenir dès aujourd’hui
+              </h2>
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <a th:href="@{/register}" class="btn btn-light btn-lg rounded-pill px-4 promo-cta">
+                  S’inscrire maintenant
+                  <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+                <a th:href="@{/login}" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                  Se connecter
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#promoAnnouncementCarousel" data-bs-slide="prev" aria-label="Précédent">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#promoAnnouncementCarousel" data-bs-slide="next" aria-label="Suivant">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+
+  <style>
+    .promo-slide { min-height: 340px; }
+    .promo-bg {
+      height: 420px;
+      object-fit: cover;
+      filter: saturate(1.05);
+      transform: scale(1.02);
+    }
+    .promo-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(80% 80% at 30% 40%, rgba(0,0,0,0.15), rgba(0,0,0,0.65));
+    }
+    .promo-overlay-dark {
+      background:
+        linear-gradient(120deg, rgba(2,6,23,0.85) 0%, rgba(2,6,23,0.45) 55%, rgba(2,6,23,0.85) 100%),
+        radial-gradient(60% 60% at 30% 40%, rgba(79,70,229,0.18), rgba(0,0,0,0.65));
+    }
+    .promo-overlay-green {
+      background:
+        linear-gradient(120deg, rgba(6,78,59,0.80) 0%, rgba(6,78,59,0.35) 55%, rgba(2,6,23,0.85) 100%),
+        radial-gradient(60% 60% at 30% 40%, rgba(16,185,129,0.20), rgba(0,0,0,0.60));
+    }
+    .promo-overlay-yellow {
+      background:
+        linear-gradient(120deg, rgba(113,63,18,0.82) 0%, rgba(113,63,18,0.30) 55%, rgba(2,6,23,0.85) 100%),
+        radial-gradient(60% 60% at 30% 40%, rgba(245,158,11,0.22), rgba(0,0,0,0.60));
+    }
+    .promo-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2.25rem 2rem;
+      color: #fff;
+      max-width: 820px;
+    }
+    .promo-badge {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      padding: .45rem .75rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      font-weight: 600;
+      font-size: .9rem;
+      letter-spacing: .2px;
+      backdrop-filter: blur(6px);
+    }
+    .promo-badge-success { background: rgba(16,185,129,0.16); border-color: rgba(16,185,129,0.26); }
+    .promo-badge-warning { background: rgba(245,158,11,0.16); border-color: rgba(245,158,11,0.26); }
+    .promo-title {
+      margin-top: 1rem;
+      font-weight: 800;
+      line-height: 1.1;
+      font-size: clamp(1.5rem, 2.2vw + 1rem, 2.5rem);
+      text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .promo-subtitle {
+      margin-top: .75rem;
+      color: rgba(255,255,255,0.85);
+      font-size: 1.05rem;
+      max-width: 48rem;
+    }
+    .promo-features {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .promo-feature {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem .75rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(6px);
+      font-weight: 600;
+      font-size: .95rem;
+    }
+    .promo-feature i { font-size: 1.1rem; }
+    .promo-cta {
+      font-weight: 800;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+    }
+    @media (max-width: 768px) {
+      .promo-bg { height: 460px; }
+      .promo-content { padding: 1.5rem 1.25rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-fade .carousel-item { transition: none !important; }
+    }
+  </style>
+</section>
+
+<div th:fragment="scripts">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Script pour activer le lien actif dans la navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Récupérer le chemin actuel
+      const currentPath = window.location.pathname;
+      
+      // Marquer le lien actif dans la navigation
+      const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href !== '#' && currentPath === href) {
+          link.classList.add('active');
+        } else if (href && href !== '#' && currentPath.startsWith(href) && href !== '/') {
+          link.classList.add('active');
+        }
+      });
+      
+      // Animation de la navbar au scroll
+      let lastScroll = 0;
+      const navbar = document.querySelector('.navbar');
+      
+      window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset;
+        
+        if (currentScroll > lastScroll && currentScroll > 100) {
+          // Scroll vers le bas - cacher la navbar
+          navbar.style.transform = 'translateY(-100%)';
+          navbar.style.transition = 'transform 0.3s ease';
+        } else {
+          // Scroll vers le haut - montrer la navbar
+          navbar.style.transform = 'translateY(0)';
+        }
+        
+        lastScroll = currentScroll;
+      });
+      
+    });
+  </script>
+</div>
+
+</body>
+</html>

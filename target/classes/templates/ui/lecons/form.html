@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head(${lecon.id != null ? 'Modifier leçon' : 'Nouvelle leçon'})}"></head>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #f5f7fa, #e4ebf5);
+    overflow-x: hidden;
+  }
+
+  /* Animation générale */
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animated-page {
+    animation: fadeSlideUp 0.7s ease-in-out;
+  }
+
+  /* Titre */
+  .page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2d3d;
+    animation: fadeSlideUp 0.5s ease;
+  }
+
+  /* Carte moderne */
+  .modern-card {
+    border: none;
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.88);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+    transition: all 0.35s ease;
+    animation: fadeSlideUp 0.8s ease;
+  }
+
+  .modern-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  }
+
+  /* Inputs */
+  .form-control,
+  .form-select {
+    border-radius: 12px;
+    border: 1px solid #d6dce5;
+    padding: 12px 14px;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37,99,235,0.15);
+    transform: scale(1.01);
+  }
+
+  /* Labels */
+  .form-label {
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+  }
+
+  /* Boutons */
+  .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(37,99,235,0.25);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(37,99,235,0.35);
+  }
+
+  .btn-outline-secondary {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Bouton retour */
+  .btn-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .btn-icon:hover {
+    transform: scale(1.08);
+    background-color: #eef2ff;
+  }
+
+  /* Animation des champs */
+  .form-animated > div {
+    opacity: 0;
+    animation: fadeSlideUp 0.5s ease forwards;
+  }
+
+  .form-animated > div:nth-child(1) { animation-delay: 0.1s; }
+  .form-animated > div:nth-child(2) { animation-delay: 0.2s; }
+  .form-animated > div:nth-child(3) { animation-delay: 0.3s; }
+  .form-animated > div:nth-child(4) { animation-delay: 0.4s; }
+  .form-animated > div:nth-child(5) { animation-delay: 0.5s; }
+  .form-animated > div:nth-child(6) { animation-delay: 0.6s; }
+
+</style>
+
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1 animated-page" style="max-width:760px;">
+
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="@{/ui/lecons}" class="btn btn-sm btn-outline-secondary btn-icon">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="page-title" th:text="${lecon.id != null ? 'Modifier la leçon' : 'Nouvelle leçon'}">Leçon</h1>
+  </div>
+
+  <div class="card modern-card">
+    <div class="card-body p-4">
+      <form th:object="${lecon}"
+            th:action="${lecon.id != null ? '/ui/lecons/' + lecon.id : '/ui/lecons'}"
+            method="post"
+            class="row g-3 form-animated">
+
+        <div class="col-12">
+          <label class="form-label">Titre <span class="text-danger">*</span></label>
+          <input class="form-control" th:field="*{titre}" required placeholder="Titre de la leçon"/>
+        </div>
+
+        <div class="col-8">
+          <label class="form-label">Module <span class="text-danger">*</span></label>
+          <select class="form-select" name="moduleId" required>
+            <option value="">— Choisir —</option>
+            <option th:each="m : ${modules}" th:value="${m.id}"
+                    th:selected="${lecon.module != null and lecon.module.id == m.id}"
+                    th:text="${m.titre + (m.cours != null ? ' (' + m.cours.titre + ')' : '')}">
+              Module
+            </option>
+          </select>
+        </div>
+
+        <div class="col-2">
+          <label class="form-label">Ordre</label>
+          <input class="form-control" type="number" th:field="*{ordre}" min="1" placeholder="1"/>
+        </div>
+
+        <div class="col-2">
+          <label class="form-label">Durée (min)</label>
+          <input class="form-control" type="number" th:field="*{dureeMin}" min="1" placeholder="15"/>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Contenu</label>
+          <textarea class="form-control" th:field="*{contenu}" rows="10"
+                    placeholder="Rédigez le contenu de la leçon (Markdown supporté)..."></textarea>
+          <div class="form-text">Vous pouvez utiliser la syntaxe Markdown : **gras**, *italique*, # titres, etc.</div>
+        </div>
+
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button class="btn btn-primary px-4" type="submit">
+            <i class="bi bi-check-lg me-1"></i> Enregistrer
+          </button>
+          <a th:href="@{/ui/lecons}" class="btn btn-outline-secondary px-4">
+            Annuler
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+
+</body>
+</html>

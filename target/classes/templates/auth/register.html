@@ -1,0 +1,161 @@
+```html
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head('Créer un compte')}"></head>
+
+<body class="login-page">
+
+<div class="container px-3 login-container">
+  <div class="login-card card mx-auto" style="max-width:480px;">
+
+    <!-- SHIMMER -->
+    <div class="card-shimmer"></div>
+
+    <div class="card-body p-4 p-md-5">
+
+      <!-- HEADER -->
+      <div class="text-center mb-4 login-header">
+        <div class="logo-container mb-3">
+          <div class="logo-icon">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+        </div>
+
+        <h1 class="h4 fw-bold mb-1 title-animate">Créer un compte</h1>
+        <p class="text-muted small subtitle-animate">
+          Rejoignez la plateforme E-Learning FST
+        </p>
+      </div>
+
+      <!-- ERRORS -->
+      <div class="alert alert-danger custom-alert"
+           th:if="${errorEmail}">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${errorEmail}">Erreur email</span>
+      </div>
+
+      <div class="alert alert-danger custom-alert"
+           th:if="${errorPassword}">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${errorPassword}">Erreur mot de passe</span>
+      </div>
+
+      <!-- FORM -->
+      <form th:action="@{/register}" method="post"
+            th:object="${utilisateur}"
+            class="vstack gap-3 login-form">
+
+        <!-- NOM -->
+        <div class="input-group-animated">
+          <label class="form-label">Nom complet</label>
+          <div class="input-group custom-input">
+            <span class="input-group-text">
+              <i class="bi bi-person"></i>
+            </span>
+            <input class="form-control"
+                   th:field="*{nom}"
+                   type="text"
+                   placeholder="Ahmed Ben Ali"
+                   required autofocus>
+          </div>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="input-group-animated">
+          <label class="form-label">Adresse email</label>
+          <div class="input-group custom-input">
+            <span class="input-group-text">
+              <i class="bi bi-envelope"></i>
+            </span>
+            <input class="form-control"
+                   th:field="*{email}"
+                   type="email"
+                   placeholder="vous@exemple.com"
+                   required>
+          </div>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="input-group-animated">
+          <label class="form-label">Mot de passe</label>
+          <div class="input-group custom-input password-wrapper">
+
+            <span class="input-group-text">
+              <i class="bi bi-lock"></i>
+            </span>
+
+            <input class="form-control"
+                   id="password"
+                   th:field="*{password}"
+                   type="password"
+                   placeholder="Minimum 6 caractères"
+                   required minlength="6">
+
+            <button type="button" class="toggle-password">
+              <i class="bi bi-eye"></i>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div class="input-group-animated">
+          <label class="form-label">Confirmer le mot de passe</label>
+          <div class="input-group custom-input password-wrapper">
+
+            <span class="input-group-text">
+              <i class="bi bi-lock-fill"></i>
+            </span>
+
+            <input class="form-control"
+                   id="confirmPassword"
+                   name="confirmPassword"
+                   type="password"
+                   placeholder="Répétez le mot de passe"
+                   required minlength="6">
+
+            <button type="button" class="toggle-password">
+              <i class="bi bi-eye"></i>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- BUTTON -->
+        <button class="btn submit-btn w-100 mt-2" type="submit">
+          <span>Créer mon compte</span>
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+      </form>
+
+      <!-- FOOTER -->
+      <div class="divider"></div>
+
+      <div class="text-center">
+        <p class="text-muted small mb-1">
+          Déjà inscrit ?
+          <a th:href="@{/login}" class="text-primary fw-semibold text-decoration-none">
+            Se connecter
+          </a>
+        </p>
+
+        <p class="text-muted small mt-2 mb-0">
+          <a th:href="@{/home}" class="text-muted text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i>Retour à l'accueil
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<div th:replace="~{layout/fragments :: scripts}"></div>
+<script src="/js/login_animations.js"></script>
+<link rel="stylesheet" href="/css/login_animations.css">
+
+</body>
+</html>
+```

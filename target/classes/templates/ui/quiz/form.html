@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/fragments :: head('Créer un Quiz')}"></head>
+
+<style>
+  body { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .quiz-card {
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    animation: fadeUp 0.5s ease;
+  }
+
+  .question-block {
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    transition: border-color 0.2s;
+    background: #fff;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .question-block:hover { border-color: #6366f1; }
+
+  .question-number {
+    position: absolute;
+    top: -14px;
+    left: 20px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border-radius: 50px;
+    padding: 2px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .remove-question-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+
+  .option-label {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-align: center;
+    line-height: 28px;
+    flex-shrink: 0;
+  }
+
+  .option-A { background: #dbeafe; color: #1d4ed8; }
+  .option-B { background: #dcfce7; color: #166534; }
+  .option-C { background: #fef9c3; color: #854d0e; }
+  .option-D { background: #fce7f3; color: #9d174d; }
+
+  .form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  }
+
+  .btn-add-question {
+    border-radius: 50px;
+    border: 2px dashed #6366f1;
+    color: #6366f1;
+    background: transparent;
+    transition: all 0.2s ease;
+    padding: 0.6rem 1.5rem;
+  }
+
+  .btn-add-question:hover {
+    background: #ede9fe;
+    border-color: #4f46e5;
+    color: #4f46e5;
+  }
+
+  .btn-save {
+    border-radius: 50px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.75rem 2.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(99,102,241,0.4);
+    color: #fff;
+  }
+
+  .correct-answer-select option { font-weight: 600; }
+</style>
+
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1" style="max-width: 820px;">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a th:href="${moduleId != null ? '/ui/modules' : '/ui/cours'}"
+       class="btn btn-sm btn-outline-secondary" style="border-radius:50px;">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h1 class="h4 fw-bold mb-0">
+        <i class="bi bi-patch-question-fill text-warning me-2"></i>
+        <span th:text="${quiz != null and quiz.id != null} ? 'Modifier le quiz' : 'Créer un quiz'">Nouveau quiz</span>
+      </h1>
+      <p class="text-muted small mb-0"
+         th:if="${module != null}">
+        Module : <strong th:text="${module.titre}">Module</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div th:if="${successMsg}" class="alert alert-success border-0 rounded-3 mb-4"
+       th:text="${successMsg}"></div>
+  <div th:if="${errorMsg}" class="alert alert-danger border-0 rounded-3 mb-4"
+       th:text="${errorMsg}"></div>
+
+  <form id="quizForm" method="post"
+        th:action="${quiz != null and quiz.id != null}
+                   ? @{/ui/quiz/{id}/edit(id=${quiz.id})}
+                   : @{/ui/quiz/create}">
+
+    <!-- Informations générales du quiz -->
+    <div class="card quiz-card mb-4">
+      <div class="card-body p-4">
+
+        <h5 class="fw-bold mb-3">
+          <i class="bi bi-info-circle text-primary me-2"></i>Informations générales
+        </h5>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Titre du quiz <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="titre" required
+                 placeholder="Ex: Quiz — Introduction à Java"
+                 th:value="${quiz?.titre}"/>
+        </div>
+
+        <div class="mb-0">
+          <label class="form-label fw-semibold">Module associé <span class="text-danger">*</span></label>
+          <select class="form-select" name="moduleId" required>
+            <option value="" disabled th:selected="${quiz?.module == null}">— Choisir un module —</option>
+            <option th:each="m : ${modules}"
+                    th:value="${m.id}"
+                    th:text="${m.titre}"
+                    th:selected="${quiz?.module?.id == m.id}">Module</option>
+          </select>
+          <div class="form-text">Le quiz sera rattaché à ce module et accessible depuis le cours.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-list-ol text-success me-2"></i>Questions
+      </h5>
+      <span class="badge bg-primary-subtle text-primary rounded-pill px-3" id="questionCount">
+        0 question(s)
+      </span>
+    </div>
+
+    <div id="questionsContainer" class="vstack gap-4 mb-4">
+      <!-- Questions injectées ici (existantes ou dynamiques) -->
+
+      <!-- Affichage des questions existantes (mode édition) -->
+      <div th:each="q, qs : ${quiz?.questions}"
+           class="question-block"
+           th:attr="data-index=${qs.index}">
+        <span class="question-number" th:text="'Q' + ${qs.count}">Q1</span>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-question-btn"
+                onclick="removeQuestion(this)" th:if="${#lists.size(quiz.questions) > 1}">
+          <i class="bi bi-trash3"></i>
+        </button>
+
+        <input type="hidden" th:name="'questions[' + ${qs.index} + '].id'" th:value="${q.id}"/>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">Énoncé de la question <span class="text-danger">*</span></label>
+          <textarea class="form-control" rows="2" required
+                    th:name="'questions[' + ${qs.index} + '].text'"
+                    placeholder="Ex: Qu'est-ce qu'une classe en Java ?"
+                    th:text="${q.text}"></textarea>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">
+              <span class="option-label option-A me-1">A</span> Option A <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" required
+                   th:name="'questions[' + ${qs.index} + '].optionA'"
+                   placeholder="Option A"
+                   th:value="${q.optionA}"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">
+              <span class="option-label option-B me-1">B</span> Option B <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" required
+                   th:name="'questions[' + ${qs.index} + '].optionB'"
+                   placeholder="Option B"
+                   th:value="${q.optionB}"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">
+              <span class="option-label option-C me-1">C</span> Option C <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" required
+                   th:name="'questions[' + ${qs.index} + '].optionC'"
+                   placeholder="Option C"
+                   th:value="${q.optionC}"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">
+              <span class="option-label option-D me-1">D</span> Option D <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" required
+                   th:name="'questions[' + ${qs.index} + '].optionD'"
+                   placeholder="Option D"
+                   th:value="${q.optionD}"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label fw-semibold small text-success">
+            <i class="bi bi-check-circle me-1"></i>Bonne réponse <span class="text-danger">*</span>
+          </label>
+          <select class="form-select correct-answer-select" required
+                  th:name="'questions[' + ${qs.index} + '].correctAnswer'">
+            <option value="A" th:selected="${q.correctAnswer == 'A'}">A — <span th:text="${q.optionA}">Option A</span></option>
+            <option value="B" th:selected="${q.correctAnswer == 'B'}">B — <span th:text="${q.optionB}">Option B</span></option>
+            <option value="C" th:selected="${q.correctAnswer == 'C'}">C — <span th:text="${q.optionC}">Option C</span></option>
+            <option value="D" th:selected="${q.correctAnswer == 'D'}">D — <span th:text="${q.optionD}">Option D</span></option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bouton ajouter question -->
+    <div class="text-center mb-4">
+      <button type="button" class="btn btn-add-question" onclick="addQuestion()">
+        <i class="bi bi-plus-lg me-2"></i>Ajouter une question
+      </button>
+    </div>
+
+    <!-- Boutons bas de page -->
+    <div class="d-flex gap-3 justify-content-end">
+      <a th:href="${moduleId != null ? '/ui/modules' : '/ui/cours'}"
+         class="btn btn-outline-secondary px-4" style="border-radius:50px;">
+        <i class="bi bi-x-lg me-1"></i>Annuler
+      </a>
+      <button type="submit" class="btn btn-save">
+        <i class="bi bi-check-lg me-2"></i>Enregistrer le quiz
+      </button>
+    </div>
+
+  </form>
+
+</main>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+
+<script th:inline="javascript">
+  let questionIndex = /*[[${quiz?.questions != null ? #lists.size(quiz.questions) : 0}]]*/ 0;
+
+  function updateQuestionCount() {
+    const blocks = document.querySelectorAll('.question-block');
+    document.getElementById('questionCount').textContent = blocks.length + ' question(s)';
+    // Renumber
+    blocks.forEach((block, i) => {
+      const numEl = block.querySelector('.question-number');
+      if (numEl) numEl.textContent = 'Q' + (i + 1);
+    });
+  }
+
+  function addQuestion() {
+    const idx = questionIndex++;
+    const container = document.getElementById('questionsContainer');
+
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.setAttribute('data-index', idx);
+
+    block.innerHTML = `
+      <span class="question-number">Q?</span>
+      <button type="button" class="btn btn-sm btn-outline-danger remove-question-btn"
+              onclick="removeQuestion(this)">
+        <i class="bi bi-trash3"></i>
+      </button>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold small">Énoncé de la question <span class="text-danger">*</span></label>
+        <textarea class="form-control" rows="2" required
+                  name="questions[${idx}].text"
+                  placeholder="Ex: Quelle est la différence entre une interface et une classe abstraite ?"></textarea>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">
+            <span class="option-label option-A me-1">A</span> Option A <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control" required
+                 name="questions[${idx}].optionA" placeholder="Option A"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">
+            <span class="option-label option-B me-1">B</span> Option B <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control" required
+                 name="questions[${idx}].optionB" placeholder="Option B"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">
+            <span class="option-label option-C me-1">C</span> Option C <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control" required
+                 name="questions[${idx}].optionC" placeholder="Option C"/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">
+            <span class="option-label option-D me-1">D</span> Option D <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control" required
+                 name="questions[${idx}].optionD" placeholder="Option D"/>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label fw-semibold small text-success">
+          <i class="bi bi-check-circle me-1"></i>Bonne réponse <span class="text-danger">*</span>
+        </label>
+        <select class="form-select correct-answer-select" required
+                name="questions[${idx}].correctAnswer">
+          <option value="" disabled selected>— Sélectionner la bonne réponse —</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+      </div>
+    `;
+
+    container.appendChild(block);
+    updateQuestionCount();
+    block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function removeQuestion(btn) {
+    const block = btn.closest('.question-block');
+    const blocks = document.querySelectorAll('.question-block');
+    if (blocks.length <= 1) {
+      alert('Le quiz doit contenir au moins une question.');
+      return;
+    }
+    block.style.opacity = '0';
+    block.style.transform = 'scale(0.95)';
+    block.style.transition = 'all 0.2s ease';
+    setTimeout(() => {
+      block.remove();
+      updateQuestionCount();
+    }, 200);
+  }
+
+  // Init count on page load
+  document.addEventListener('DOMContentLoaded', function () {
+    updateQuestionCount();
+    // If no existing questions (new quiz), add one by default
+    const existing = document.querySelectorAll('.question-block').length;
+    if (existing === 0) addQuestion();
+  });
+</script>
+
+</body>
+</html>

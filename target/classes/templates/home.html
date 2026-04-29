@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning FST - Apprenez à votre rythme</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --light-bg: #f8fafc;
+            --border-light: #e2e8f0;
+        }
+
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ===== ANIMATIONS GLOBALES ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(79, 70, 229, 0.6);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(79, 70, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            animation: fadeInDown 0.8s ease-out;
+            backdrop-filter: blur(10px);
+            background: rgba(30, 41, 59, 0.95) !important;
+        }
+
+        .navbar-brand {
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 5px !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero-section {
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            bottom: -2px;
+            opacity: 0.5;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .badge-hero {
+            animation: fadeInUp 1.2s ease-out;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-title {
+            animation: slideInLeft 0.8s ease-out 0.2s both;
+            font-size: 3.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            animation: slideInRight 0.8s ease-out 0.4s both;
+        }
+
+        .btn-hero {
+            animation: fadeInUp 1s ease-out 0.6s both;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-hero:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* ===== STATS SECTION ===== */
+        .stats-section {
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        .stat-item {
+            transition: all 0.3s ease;
+            animation: countUp 0.8s ease-out backwards;
+        }
+
+        .stat-item:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-item:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .stat-item:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover .stat-number {
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        /* ===== FEATURES SECTION ===== */
+        .feature-card {
+            animation: fadeInUp 0.8s ease-out backwards;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .feature-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+            z-index: 1;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
+        }
+
+        .feature-icon {
+            transition: all 0.3s ease;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .feature-card:hover .feature-icon {
+            animation: float 2s ease-in-out infinite;
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* ===== COURSE CARDS ===== */
+        .course-card {
+            animation: fadeInUp 0.8s ease-out backwards;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .course-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .course-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .course-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .course-card:nth-child(n+4) {
+            animation-delay: 0.4s;
+        }
+
+        .course-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(79, 70, 229, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .course-card:hover::after {
+            opacity: 1;
+        }
+
+        .course-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.2);
+        }
+
+        .course-img {
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-img::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(79, 70, 229, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .course-card:hover .course-img::before {
+            opacity: 1;
+        }
+
+        .course-card:hover .course-img img {
+            transform: scale(1.1) rotate(1deg);
+        }
+
+        .badge {
+            animation: bounceIn 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .course-card:hover .badge {
+            transform: scale(1.1);
+        }
+
+        /* ===== PAYMENT SECTION ===== */
+        .payment-card {
+            animation: fadeInUp 0.8s ease-out backwards;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .payment-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .payment-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .payment-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .payment-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .payment-icon {
+            transition: all 0.3s ease;
+        }
+
+        .payment-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.2);
+        }
+
+        .payment-card:hover .payment-icon {
+            transform: scale(1.2) rotate(-10deg);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta-section {
+            animation: fadeInUp 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,224L48,213.3C96,203,192,181,288,186.7C384,192,480,224,576,224C672,224,768,192,864,181.3C960,171,1056,181,1152,186.7C1248,192,1344,203,1392,208.7L1440,213.3L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.5;
+        }
+
+        .cta-heading {
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .cta-text {
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .cta-buttons {
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            animation: fadeInUp 1s ease-out;
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* ===== SCROLL ANIMATIONS ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .feature-card:hover,
+            .course-card:hover {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* ===== SMOOTH TRANSITIONS ===== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Gradient animé en arrière-plan */
+        .gradient-animated {
+            background: linear-gradient(
+                -45deg,
+                #1e293b,
+                #4f46e5,
+                #1e293b,
+                #4f46e5
+            );
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#home">
+            <div class="d-flex align-items-center justify-content-center rounded-2 bg-primary" style="width:32px;height:32px;">
+                <i class="bi bi-mortarboard-fill text-white" style="font-size:1rem;"></i>
+            </div>
+            <span>E-Learning <span class="text-primary">FST</span></span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navHome">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navHome">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#home"><i class="bi bi-house me-1"></i>Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#courses"><i class="bi bi-collection-play me-1"></i>Catalogue</a>
+                </li>
+            </ul>
+            <div class="d-flex gap-2 mt-3 mt-lg-0">
+                <a href="/login" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+                </a>
+                <a href="/register" class="btn btn-primary btn-sm rounded-pill px-4 fw-semibold">
+                    <i class="bi bi-person-plus me-1"></i>S'inscrire
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section id="home" class="hero-section gradient-animated text-white text-center py-5" style="min-height: 600px; display: flex; align-items: center;">
+    <div class="container py-4 position-relative z-1">
+        <span class="badge badge-hero rounded-pill px-3 py-2 mb-4">
+            <i class="bi bi-stars me-1"></i>Université de Tunis El Manar — FST
+        </span>
+        
+        <h1 class="hero-title fw-bold mb-3">
+            Apprenez à votre rythme,<br><span class="text-warning">progressez sans limite</span>
+        </h1>
+        
+        <p class="hero-subtitle lead mb-4 opacity-75 mx-auto" style="max-width:540px;">
+            Des cours en ligne certifiants, un suivi de progression intelligent et des formateurs experts — tout en un seul endroit.
+        </p>
+        
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/register" class="btn btn-light btn-lg px-5 fw-semibold shadow btn-hero">
+                <i class="bi bi-person-plus me-2"></i>Commencer gratuitement
+            </a>
+            <a href="/login" class="btn btn-outline-light btn-lg px-4 btn-hero">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ANNONCE PROMOTIONNELLE (SLIDER 3 SLIDES / 6s / LOOP) -->
+<div th:replace="~{layout/fragments :: promoAnnouncement}"></div>
+
+<!-- STATS SECTION -->
+<section class="stats-section py-5 bg-white border-bottom">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-4 stat-item">
+                <div class="display-6 fw-bold text-primary stat-number" data-target="156">0</div>
+                <div class="text-muted small mt-1"><i class="bi bi-collection-play me-1"></i>Cours disponibles</div>
+            </div>
+            <div class="col-4 stat-item">
+                <div class="display-6 fw-bold text-success stat-number" data-target="8450">0</div>
+                <div class="text-muted small mt-1"><i class="bi bi-people me-1"></i>Apprenants</div>
+            </div>
+            <div class="col-4 stat-item">
+                <div class="display-6 fw-bold text-warning stat-number" data-target="42">0</div>
+                <div class="text-muted small mt-1"><i class="bi bi-person-video me-1"></i>Formateurs</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="py-5" style="background:#f8fafc;">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <h2 class="fw-bold mb-2">Pourquoi E-Learning FST ?</h2>
+            <p class="text-muted small">Une plateforme conçue pour apprendre efficacement</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card feature-card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="mx-auto mb-3 rounded-3 d-flex align-items-center justify-content-center bg-primary bg-opacity-10" style="width:52px;height:52px;">
+                        <i class="bi bi-play-circle fs-4 text-primary feature-icon"></i>
+                    </div>
+                    <h5 class="fw-bold small mb-1">Cours vidéo</h5>
+                    <p class="text-muted" style="font-size:0.8rem;">Contenu structuré accessible 24h/24</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card feature-card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="mx-auto mb-3 rounded-3 d-flex align-items-center justify-content-center bg-success bg-opacity-10" style="width:52px;height:52px;">
+                        <i class="bi bi-graph-up-arrow fs-4 text-success feature-icon"></i>
+                    </div>
+                    <h5 class="fw-bold small mb-1">Suivi progression</h5>
+                    <p class="text-muted" style="font-size:0.8rem;">Visualisez vos avancées en temps réel</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card feature-card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="mx-auto mb-3 rounded-3 d-flex align-items-center justify-content-center bg-warning bg-opacity-10" style="width:52px;height:52px;">
+                        <i class="bi bi-award fs-4 text-warning feature-icon"></i>
+                    </div>
+                    <h5 class="fw-bold small mb-1">Certificats</h5>
+                    <p class="text-muted" style="font-size:0.8rem;">Valorisez vos compétences acquises</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card feature-card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="mx-auto mb-3 rounded-3 d-flex align-items-center justify-content-center bg-info bg-opacity-10" style="width:52px;height:52px;">
+                        <i class="bi bi-credit-card fs-4 text-info feature-icon"></i>
+                    </div>
+                    <h5 class="fw-bold small mb-1">Paiement sécurisé</h5>
+                    <p class="text-muted" style="font-size:0.8rem;">Plusieurs modes de paiement disponibles</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COURSES SECTION -->
+<section id="courses" class="py-5 bg-white">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 reveal">
+            <div>
+                <h2 class="fw-bold mb-1">Cours en vedette</h2>
+                <p class="text-muted small mb-0">Explorez nos formations les plus récentes</p>
+            </div>
+            <a href="/ui/cours" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                Voir tout <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4" th:if="${coursList != null && !coursList.isEmpty()}">
+            <div class="col-md-6 col-lg-4" th:each="c : ${coursList}">
+                <div class="card course-card h-100 shadow-sm border-0">
+                    <div class="course-img position-relative">
+                        <img th:src="${c.imageUrl != null ? c.imageUrl : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=200&fit=crop'}"
+                             class="card-img-top" alt="Cours" style="height:180px;object-fit:cover;">
+                        <th:block th:switch="${c.niveau}">
+                            <span th:case="'DEBUTANT'" class="badge position-absolute top-0 start-0 m-2 rounded-pill bg-success">Débutant</span>
+                            <span th:case="'INTERMEDIAIRE'" class="badge position-absolute top-0 start-0 m-2 rounded-pill bg-warning text-dark">Intermédiaire</span>
+                            <span th:case="'AVANCE'" class="badge position-absolute top-0 start-0 m-2 rounded-pill bg-danger">Avancé</span>
+                            <span th:case="*" class="badge position-absolute top-0 start-0 m-2 rounded-pill bg-secondary">—</span>
+                        </th:block>
+                        <span class="badge position-absolute top-0 end-0 m-2 rounded-pill bg-primary"
+                              th:text="${c.gratuit ? 'Gratuit' : #numbers.formatDecimal(c.prix,1,2) + ' TND'}">Gratuit</span>
+                    </div>
+                    <div class="card-body d-flex flex-column p-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small mb-2 w-fit"
+                              th:text="${c.categorie != null ? c.categorie : 'Général'}">Catégorie</span>
+                        <h5 class="card-title fw-semibold small" th:text="${c.titre}">Titre</h5>
+                        <p class="text-muted flex-grow-1 mb-3" style="font-size:0.8rem;"
+                           th:text="${c.description != null && #strings.length(c.description) > 140 ? #strings.substring(c.description,0,137) + '…' : (c.description ?: '')}">Description</p>
+                        <a th:href="@{/login}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-lock me-1"></i>Connexion pour accéder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="text-muted text-center small mb-0" th:if="${coursList == null || coursList.isEmpty()}">
+            Les cours apparaîtront ici dès qu’ils seront publiés sur la plateforme.
+        </p>
+    </div>
+</section>
+
+<!-- PAYMENT SECTION -->
+<section class="py-5" style="background:#f0f9ff;">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <h2 class="fw-bold mb-2">Modes de paiement acceptés</h2>
+            <p class="text-muted small">Simple, sécurisé et flexible</p>
+        </div>
+        <div class="row g-3 justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="card payment-card border-0 shadow-sm text-center p-4 h-100">
+                    <i class="bi bi-credit-card-2-front fs-2 text-primary mb-2 payment-icon"></i>
+                    <div class="fw-semibold small">Carte bancaire</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card payment-card border-0 shadow-sm text-center p-4 h-100">
+                    <i class="bi bi-bank fs-2 text-success mb-2 payment-icon"></i>
+                    <div class="fw-semibold small">Virement bancaire</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card payment-card border-0 shadow-sm text-center p-4 h-100">
+                    <i class="bi bi-cash-stack fs-2 text-warning mb-2 payment-icon"></i>
+                    <div class="fw-semibold small">Espèces</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card payment-card border-0 shadow-sm text-center p-4 h-100">
+                    <i class="bi bi-file-earmark-text fs-2 text-info mb-2 payment-icon"></i>
+                    <div class="fw-semibold small">Chèque</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta-section py-5 text-white text-center" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+    <div class="container py-3 position-relative z-1">
+        <h2 class="cta-heading fw-bold mb-3">Prêt à commencer votre parcours ?</h2>
+        <p class="cta-text opacity-75 mb-4 small">Créez votre compte en 30 secondes et accédez aux cours dès aujourd'hui.</p>
+        <div class="cta-buttons d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/register" class="btn btn-light btn-lg px-5 fw-semibold shadow-sm btn-hero btn-primary-pulse">
+                <i class="bi bi-person-plus me-2"></i>S'inscrire gratuitement
+            </a>
+            <a href="/login" class="btn btn-outline-light btn-lg px-4 btn-hero">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="mt-auto py-4 text-white">
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">E-Learning FST</h6>
+                <p class="small text-opacity-75 text-white mb-0">Plateforme de formation en ligne pour l'Université de Tunis El Manar</p>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">Navigation</h6>
+                <ul class="list-unstyled small text-opacity-75 text-white">
+                    <li class="mb-2"><a href="/home#home" class="text-white text-decoration-none">Accueil</a></li>
+                    <li class="mb-2"><a href="/home#courses" class="text-white text-decoration-none">Cours</a></li>
+                    <li><a href="/ui/cours" class="text-white text-decoration-none">Catalogue</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">Ressources</h6>
+                <ul class="list-unstyled small text-opacity-75 text-white">
+                    <li class="mb-2"><a href="/home#courses" class="text-white text-decoration-none">FAQ</a></li>
+                    <li class="mb-2"><a href="mailto:contact@fst.utm.tn" class="text-white text-decoration-none">Contact</a></li>
+                    <li><a href="/login" class="text-white text-decoration-none">Conditions</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">Nous suivre</h6>
+                <div class="d-flex gap-3">
+                    <a href="https://www.facebook.com/universite.tunis.elmanar" target="_blank" rel="noopener noreferrer" class="text-white text-opacity-75 text-decoration-none"><i class="bi bi-facebook"></i></a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="text-white text-opacity-75 text-decoration-none"><i class="bi bi-twitter"></i></a>
+                    <a href="https://www.linkedin.com/school/universite-de-tunis-el-manar/" target="_blank" rel="noopener noreferrer" class="text-white text-opacity-75 text-decoration-none"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr class="border-white border-opacity-25 my-3">
+        <div class="text-center small text-white text-opacity-75">
+            <p class="mb-0">&copy; 2024 E-Learning FST. Tous droits réservés. | Université de Tunis El Manar</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Compteur de stats avec animation
+    function animateCounter() {
+        const counters = document.querySelectorAll('.stat-number');
+        const duration = 2000;
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.dataset.target);
+            const increment = target / (duration / 16);
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 16);
+        });
+    }
+
+    // Déclencher le compteur au scroll
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (entry.target.classList.contains('stats-section')) {
+                    animateCounter();
+                    observer.unobserve(entry.target);
+                }
+                if (entry.target.classList.contains('reveal')) {
+                    entry.target.classList.add('active');
+                }
+            }
+        });
+    }, observerOptions);
+
+    // Observer pour les éléments reveal
+    document.querySelectorAll('.reveal').forEach(element => {
+        observer.observe(element);
+    });
+
+    // Observer pour les stats
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+
+    // Smooth scroll pour les liens internes
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Animation de pulse sur le bouton CTA principal
+    const primaryButton = document.querySelector('.btn-primary-pulse');
+    if (primaryButton) {
+        primaryButton.addEventListener('mouseenter', function() {
+            this.style.animation = 'none';
+            setTimeout(() => {
+                this.style.animation = 'pulse 2s infinite';
+            }, 10);
+        });
+    }
+</script>
+</body>
+</html>

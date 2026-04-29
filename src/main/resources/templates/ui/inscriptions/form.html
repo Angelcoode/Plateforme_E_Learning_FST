@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: head(${inscription.id != null ? 'Modifier inscription' : 'Nouvelle inscription'})}">
+    <style>
+        /* Animations personnalisées */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes focusPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes successPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Classes d'animation */
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .animate-slideInLeft {
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .animate-slideInRight {
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .animate-success {
+            animation: successPop 0.5s ease-out;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        /* Effets de carte */
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Effets sur les champs de formulaire */
+        .form-control, .form-select {
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+        }
+
+        .form-control:focus, .form-select:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.15);
+            border-color: #0d6efd;
+            outline: none;
+        }
+
+        .form-label {
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .form-group:hover .form-label {
+            transform: translateX(5px);
+            color: #0d6efd;
+        }
+
+        /* Effet de chargement pour le bouton */
+        .btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0b5ed7, #0a58ca);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.2);
+        }
+
+        /* Effet de validation */
+        .is-valid-custom {
+            border-color: #198754 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            padding-right: calc(1.5em + 0.75rem);
+        }
+
+        .is-invalid-custom {
+            border-color: #dc3545 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            padding-right: calc(1.5em + 0.75rem);
+        }
+
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        /* Input avec icône */
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .input-icon input, .input-icon select {
+            padding-left: 40px;
+        }
+
+        .input-icon:focus-within i {
+            color: #0d6efd;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Loading spinner */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+        }
+
+        /* Focus pulse */
+        .focus-pulse:focus {
+            animation: focusPulse 0.6s;
+        }
+
+        /* Avatar suggestion */
+        .suggestion-badge {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .suggestion-badge:hover {
+            transform: scale(1.05);
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{layout/fragments :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1" style="max-width:720px;">
+    <div class="animate-fadeInUp">
+        <!-- Header avec animation -->
+        <div class="d-flex align-items-center gap-3 mb-4 animate-slideInLeft">
+            <a th:href="@{/ui/inscriptions}" 
+               class="btn btn-outline-secondary rounded-circle" 
+               style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-arrow-left fs-5"></i>
+            </a>
+            <div>
+                <h1 class="page-title mb-0 fw-bold" 
+                    th:text="${inscription.id != null ? 'Modifier inscription' : 'Nouvelle inscription'}">
+                    Inscription
+                </h1>
+                <p class="text-muted small mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <span th:if="${inscription.id != null}">Modifiez les informations de l'inscription</span>
+                    <span th:unless="${inscription.id != null}">Remplissez le formulaire pour créer une nouvelle inscription</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="card shadow-lg border-0 card-hover animate-fadeIn delay-1">
+            <div class="card-body p-4 p-lg-5">
+                <form th:object="${inscription}"
+                      th:action="${inscription.id != null ? '/ui/inscriptions/' + inscription.id : '/ui/inscriptions'}"
+                      method="post" 
+                      class="row g-4"
+                      id="inscriptionForm"
+                      novalidate>
+                    
+                    <!-- Champ Apprenant -->
+                    <div class="col-12 form-group animate-slideInRight delay-1">
+                        <label class="form-label fw-semibold mb-2">
+                            <i class="bi bi-person-badge me-2"></i>Apprenant
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <i class="bi bi-person-circle"></i>
+                            <select class="form-select focus-pulse" 
+                                    name="apprenantId" 
+                                    required
+                                    id="apprenantSelect">
+                                <option value="">— Choisir un apprenant —</option>
+                                <option th:each="u : ${apprenants}" 
+                                        th:value="${u.id}"
+                                        th:selected="${inscription.apprenant != null and inscription.apprenant.id == u.id}"
+                                        th:text="${u.nom + ' (' + u.email + ')'}">Apprenant</option>
+                            </select>
+                        </div>
+                        <div class="invalid-feedback" id="apprenantError">
+                            Veuillez sélectionner un apprenant
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-question-circle me-1"></i>
+                            Sélectionnez l'apprenant à inscrire
+                        </small>
+                    </div>
+
+                    <!-- Champ Cours -->
+                    <div class="col-12 form-group animate-slideInRight delay-2">
+                        <label class="form-label fw-semibold mb-2">
+                            <i class="bi bi-book me-2"></i>Cours
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <i class="bi bi-journal-bookmark"></i>
+                            <select class="form-select focus-pulse" 
+                                    name="coursId" 
+                                    required
+                                    id="coursSelect">
+                                <option value="">— Choisir un cours —</option>
+                                <option th:each="c : ${cours}" 
+                                        th:value="${c.id}"
+                                        th:selected="${inscription.cours != null and inscription.cours.id == c.id}"
+                                        th:text="${c.titre}">Cours</option>
+                            </select>
+                        </div>
+                        <div class="invalid-feedback" id="coursError">
+                            Veuillez sélectionner un cours
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-question-circle me-1"></i>
+                            Sélectionnez le cours auquel s'inscrire
+                        </small>
+                    </div>
+
+                    <!-- Date et Statut -->
+                    <div class="row g-3">
+                        <div class="col-md-6 form-group animate-slideInRight delay-2">
+                            <label class="form-label fw-semibold mb-2">
+                                <i class="bi bi-calendar me-2"></i>Date d'inscription
+                            </label>
+                            <div class="input-icon">
+                                <i class="bi bi-calendar3"></i>
+                                <input class="form-control focus-pulse" 
+                                       type="date" 
+                                       th:field="*{dateInscription}"
+                                       id="dateInscription"/>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 form-group animate-slideInRight delay-2">
+                            <label class="form-label fw-semibold mb-2">
+                                <i class="bi bi-tag me-2"></i>Statut
+                            </label>
+                            <div class="input-icon">
+                                <i class="bi bi-flag"></i>
+                                <select class="form-select focus-pulse" 
+                                        th:field="*{statut}"
+                                        id="statutSelect">
+                                    <option th:each="s : ${statuts}" 
+                                            th:value="${s}" 
+                                            th:text="${s}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggestions de cours populaires (optionnel) -->
+                    <div class="col-12 animate-slideInRight delay-2" th:if="${#lists.size(cours) > 3}">
+                        <label class="form-label fw-semibold mb-2">
+                            <i class="bi bi-stars me-2"></i>Cours populaires
+                        </label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark p-2 suggestion-badge" 
+                                  th:each="c, iterStat : ${cours}"
+                                  th:if="${iterStat.index < 3}"
+                                  th:text="${c.titre}"
+                                  th:data-id="${c.id}"
+                                  onclick="selectCourse(this)">
+                            </span>
+                        </div>
+                        <small class="text-muted">Cliquez sur un cours pour le sélectionner rapidement</small>
+                    </div>
+
+                    <!-- Information supplémentaire (optionnel) -->
+                    <div class="col-12 animate-slideInRight delay-3">
+                        <div class="alert alert-info border-0 rounded-3" style="background: linear-gradient(135deg, #e7f3ff, #d4e9ff);">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                                <div>
+                                    <strong class="mb-1">Informations importantes</strong>
+                                    <p class="mb-0 small">
+                                        Une fois l'inscription validée, l'apprenant pourra accéder au cours et commencer les quiz.
+                                        Le statut peut être modifié ultérieurement.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="col-12 d-flex gap-3 mt-3 animate-slideInRight delay-3">
+                        <button class="btn btn-primary px-5 py-2 rounded-pill" 
+                                type="submit" 
+                                id="submitBtn">
+                            <i class="bi bi-check-lg me-2"></i>
+                            <span th:text="${inscription.id != null ? 'Mettre à jour' : 'Enregistrer'}">Enregistrer</span>
+                        </button>
+                        <a th:href="@{/ui/inscriptions}" 
+                           class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+                            <i class="bi bi-x-lg me-1"></i>Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Toast de notification -->
+<div id="notificationToast" class="toast-notification" style="display: none;">
+    <div class="toast show" role="alert">
+        <div class="toast-header">
+            <i class="bi bi-info-circle me-2 text-primary"></i>
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" onclick="hideToast()"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Message de notification
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+<div th:replace="~{layout/fragments :: scripts}"></div>
+
+<script>
+    // Validation du formulaire avec animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('inscriptionForm');
+        const apprenantSelect = document.getElementById('apprenantSelect');
+        const coursSelect = document.getElementById('coursSelect');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Initialisation de la date par défaut
+        const dateInput = document.getElementById('dateInscription');
+        if (dateInput && !dateInput.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+        
+        // Gestionnaire de soumission avec validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validation apprenant
+            if (!apprenantSelect.value) {
+                showError(apprenantSelect, 'apprenantError');
+                isValid = false;
+            } else {
+                clearError(apprenantSelect, 'apprenantError');
+            }
+            
+            // Validation cours
+            if (!coursSelect.value) {
+                showError(coursSelect, 'coursError');
+                isValid = false;
+            } else {
+                clearError(coursSelect, 'coursError');
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                showToast('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+            
+            // Animation de chargement du bouton
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Traitement...';
+            
+            // Le formulaire sera soumis normalement après cette animation
+            // Le timeout est juste pour montrer l'animation, le submit réel se fait immédiatement
+            setTimeout(() => {
+                // Le formulaire est déjà en train d'être soumis
+            }, 100);
+        });
+        
+        // Validation en temps réel
+        apprenantSelect.addEventListener('change', function() {
+            if (this.value) {
+                addSuccessClass(this);
+                clearError(this, 'apprenantError');
+                animateField(this);
+                showToast(`Apprenant sélectionné : ${this.options[this.selectedIndex]?.text || ''}`, 'success');
+            } else {
+                removeSuccessClass(this);
+            }
+        });
+        
+        coursSelect.addEventListener('change', function() {
+            if (this.value) {
+                addSuccessClass(this);
+                clearError(this, 'coursError');
+                animateField(this);
+                showToast(`Cours sélectionné : ${this.options[this.selectedIndex]?.text || ''}`, 'success');
+            } else {
+                removeSuccessClass(this);
+            }
+        });
+        
+        // Animation au focus
+        const fields = document.querySelectorAll('.form-control, .form-select');
+        fields.forEach(field => {
+            field.addEventListener('focus', function() {
+                this.classList.add('focus-pulse');
+                // Ajouter un effet de bordure brillante
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            field.addEventListener('blur', function() {
+                this.classList.remove('focus-pulse');
+                if (this.value && this.id !== 'dateInscription' && this.id !== 'statutSelect') {
+                    addSuccessClass(this);
+                } else if (!this.value && this.id !== 'dateInscription' && this.id !== 'statutSelect') {
+                    removeSuccessClass(this);
+                }
+            });
+        });
+        
+        // Effet de survol des boutons
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Afficher les données existantes avec animation
+        setTimeout(() => {
+            if (apprenantSelect.value) {
+                addSuccessClass(apprenantSelect);
+            }
+            if (coursSelect.value) {
+                addSuccessClass(coursSelect);
+            }
+            if (dateInput && dateInput.value) {
+                addSuccessClass(dateInput);
+            }
+        }, 500);
+        
+        // Vérifier si c'est une modification et afficher un message
+        const isEdit = window.location.pathname.includes('/edit');
+        if (isEdit) {
+            showToast('Mode édition activé. Modifiez les champs nécessaires.', 'info');
+        }
+    });
+    
+    // Fonction pour sélectionner rapidement un cours
+    function selectCourse(element) {
+        const coursId = element.getAttribute('data-id');
+        const coursSelect = document.getElementById('coursSelect');
+        
+        if (coursId && coursSelect) {
+            for (let i = 0; i < coursSelect.options.length; i++) {
+                if (coursSelect.options[i].value === coursId) {
+                    coursSelect.selectedIndex = i;
+                    coursSelect.dispatchEvent(new Event('change'));
+                    
+                    // Animation de confirmation
+                    element.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        element.style.transform = 'scale(1)';
+                    }, 200);
+                    
+                    showToast(`Cours sélectionné : ${element.textContent}`, 'success');
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Fonctions utilitaires
+    function showError(field, errorId) {
+        field.classList.add('is-invalid-custom');
+        field.classList.remove('is-valid-custom');
+        const errorDiv = document.getElementById(errorId);
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+            errorDiv.style.animation = 'fadeIn 0.3s ease-out';
+        }
+        
+        // Secouer le champ
+        field.style.animation = 'shake 0.5s ease-out';
+        setTimeout(() => {
+            field.style.animation = '';
+        }, 500);
+    }
+    
+    function clearError(field, errorId) {
+        field.classList.remove('is-invalid-custom');
+        const errorDiv = document.getElementById(errorId);
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+    }
+    
+    function addSuccessClass(field) {
+        field.classList.add('is-valid-custom');
+    }
+    
+    function removeSuccessClass(field) {
+        field.classList.remove('is-valid-custom');
+    }
+    
+    function animateField(field) {
+        field.style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            field.style.transform = 'scale(1)';
+        }, 200);
+    }
+    
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('notificationToast');
+        if (!toast) return;
+        
+        const toastMessage = document.getElementById('toastMessage');
+        const toastHeader = toast.querySelector('.toast-header');
+        
+        toastMessage.textContent = message;
+        
+        // Réinitialiser les styles
+        toastHeader.style.backgroundColor = '';
+        toastHeader.style.color = '';
+        
+        if (type === 'success') {
+            toastHeader.style.backgroundColor = '#d4edda';
+            toastHeader.style.color = '#155724';
+            const icon = toastHeader.querySelector('i');
+            if (icon) {
+                icon.classList.remove('text-primary');
+                icon.classList.add('text-success');
+            }
+        } else if (type === 'error') {
+            toastHeader.style.backgroundColor = '#f8d7da';
+            toastHeader.style.color = '#721c24';
+            const icon = toastHeader.querySelector('i');
+            if (icon) {
+                icon.classList.remove('text-primary');
+                icon.classList.add('text-danger');
+            }
+        } else {
+            const icon = toastHeader.querySelector('i');
+            if (icon) {
+                icon.classList.remove('text-success', 'text-danger');
+                icon.classList.add('text-primary');
+            }
+        }
+        
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            hideToast();
+        }, 3000);
+    }
+    
+    function hideToast() {
+        const toast = document.getElementById('notificationToast');
+        if (toast) {
+            toast.style.display = 'none';
+        }
+    }
+    
+    // Détection des préférences de mouvement réduit
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const style = document.createElement('style');
+        style.textContent = `
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Auto-save form data
+    let autoSaveTimeout;
+    const form = document.getElementById('inscriptionForm');
+    if (form) {
+        const formInputs = form.querySelectorAll('input, select');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    const formData = new FormData(form);
+                    const data = {};
+                    formData.forEach((value, key) => {
+                        if (key !== '_csrf') {
+                            data[key] = value;
+                        }
+                    });
+                    localStorage.setItem('inscriptionFormDraft', JSON.stringify(data));
+                    // Afficher un indicateur de sauvegarde
+                    const toast = document.getElementById('notificationToast');
+                    if (toast && toast.style.display !== 'block') {
+                        // Sauvegarde silencieuse
+                        console.log('Brouillon sauvegardé');
+                    }
+                }, 1500);
+            });
+        });
+        
+        // Restaurer le brouillon si nécessaire (seulement pour les nouvelles inscriptions)
+        const isNewInscription = !window.location.pathname.includes('/edit');
+        if (isNewInscription) {
+            const draft = localStorage.getItem('inscriptionFormDraft');
+            if (draft) {
+                setTimeout(() => {
+                    if (confirm('Un brouillon a été trouvé. Voulez-vous le restaurer ?')) {
+                        const data = JSON.parse(draft);
+                        for (const key in data) {
+                            const field = form.querySelector(`[name="${key}"]`);
+                            if (field && data[key]) {
+                                field.value = data[key];
+                                if (field.tagName === 'SELECT') {
+                                    field.dispatchEvent(new Event('change'));
+                                }
+                            }
+                        }
+                        localStorage.removeItem('inscriptionFormDraft');
+                        showToast('Brouillon restauré avec succès', 'success');
+                    }
+                }, 500);
+            }
+        }
+    }
+    
+    // Nettoyer le brouillon après une soumission réussie
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success')) {
+        localStorage.removeItem('inscriptionFormDraft');
+        showToast('Inscription enregistrée avec succès !', 'success');
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+</script>
+
+</body>
+</html>
